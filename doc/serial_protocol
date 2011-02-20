@@ -1,0 +1,3 @@
+CRC byte komt aan het eind van de packet zodat je de de checksum kan computen tijdens het verzenden, dit bespaard processing tijd uit 
+De CRC bytes worden meegeteld in data length
+
