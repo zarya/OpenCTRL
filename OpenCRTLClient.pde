@@ -196,7 +196,8 @@ int sendData()
 	  crc16.checksum += aData[idx];
 	  mySerial.print(aData[idx], BYTE);
 	}
-      
+
+      // send crc16
       if (nDataLength > 0)
 	{
 	  // write checksum to bus
