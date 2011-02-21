@@ -106,9 +106,9 @@ while bla == 1:
         packet.checksum = "%s%s" %(s.recv(1),s.recv(1))
         print "Packet data: %s" % ''.join(packet.data)
         if packet.check_checksum: 
-            print "Packet CRC: valid"
+            print "Packet Checksum: valid"
         else:
-            print "Packet CRC: invalid"
+            print "Packet Checksum: invalid"
         bla = 0
         print "Packet len: %s" % packet.len
         print "Packet src_net: %s" % packet.src[0]
