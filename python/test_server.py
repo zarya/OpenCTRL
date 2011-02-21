@@ -2,9 +2,9 @@ import SocketServer
 
 def sendMSG(src_net,src_host,dst_net,dst_host,data):
     _len = len(data)
-    crc = 88
+    crc = [80,80]
     packet=[1,src_net,src_host,dst_net,dst_host,_len]
-    return  "%s%s%s" % (''.join(map(chr, packet)),''.join(map(chr, data)),crc)
+    return  "%s%s%s" % (''.join(map(chr, packet)),''.join(map(chr, data)),''.join(map(chr,crc)))
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
     def handle(self):

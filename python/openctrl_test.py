@@ -41,7 +41,7 @@ while bla == 1:
         while (buffert != packet.len):
             buffert=buffert+1
             print s.recv(1)
-#        print ("CRC: %s" % ord(s.recv(1)))
+        print ("CRC: %s%s" % (ord(s.recv(1)),ord(s.recv(1))))
         bla = 0
         print "Packet len: %s" % packet.len
         print "Packet src_net: %s" % packet.src_net
