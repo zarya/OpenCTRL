@@ -1,25 +1,16 @@
 import SocketServer
 
-def crc16(buff, crc = 0, poly = 0xa001):
-    l = len(buff)
+def getcrc(data):
+    crc = 0
     i = 0
-    while i < l:
-        ch = ord(buff[i])
-        uc = 0
-        while uc < 8:
-            if (crc & 1) ^ (ch & 1):
-                crc = (crc >> 1) ^ poly
-            else:
-                crc >>= 1
-            ch >>= 1
-            uc += 1
+    while i < len(data):
+        crc = crc + ord(data[i])
         i += 1
-    return crc & 0xff
-
+    return [((crc>>8)&255),((crc)& 255)]
 
 def sendMSG(src_net,src_host,dst_net,dst_host,data):
     _len = len(data)
-    crc = [crc16(data),255] 
+    crc = getcrc(data) 
     packet=[1,src_net,src_host,dst_net,dst_host,_len]
     return  "%s%s%s" % (''.join(map(chr, packet)),data,''.join(map(chr,crc)))
 

@@ -1,22 +1,13 @@
 import serial
 import socket
 
-def crc16(buff, crc = 0, poly = 0xa001):
-    l = len(buff)
+def crc(data):
+    crc = 0
     i = 0
-    while i < l:
-        ch = ord(buff[i])
-        uc = 0
-        while uc < 8:
-            if (crc & 1) ^ (ch & 1):
-                crc = (crc >> 1) ^ poly
-            else:
-                crc >>= 1
-            ch >>= 1
-            uc += 1
+    while i < len(data):
+        crc = crc + ord(data[i])
         i += 1
-    return crc & 0xff
-
+    return [((crc>>8)&255),((crc)& 255)]
 
 class packet(object):
     def __init__(self,src=0,dst=0,len=0):
@@ -27,7 +18,8 @@ class packet(object):
         self.data = []
 
     def check_crc(self):
-        if chr(crc16(self.data)) == self.crc[0] and ord(self.crc[1]) == 255:
+        crc_data = crc(self.data)
+        if crc_data[0] == self.crc[0] and crc_data[1] == self.crc[1]:
             return 1
         else:
             return 0
@@ -114,9 +106,9 @@ while bla == 1:
         packet.crc = "%s%s" %(s.recv(1),s.recv(1))
         print "Packet data: %s" % ''.join(packet.data)
         if packet.check_crc: 
-            print "Packet CRC: valid %s %s" % (crc16(packet.data),ord(packet.crc[0]))
+            print "Packet CRC: valid"
         else:
-            print "Packet CRC: invalid %s %s" % (crc16(packet.data),ord(packet.crc[0]))
+            print "Packet CRC: invalid"
         bla = 0
         print "Packet len: %s" % packet.len
         print "Packet src_net: %s" % packet.src[0]
