@@ -1,25 +1,6 @@
 import serial
 import socket
 
-class packet:
-    def __init__(self,src=0,dst=0,len=0):
-        self.src_net = 0
-        self.src_host = 0
-        self.dst_net = 0
-        self.dst_host = 0
-        self.len = 0
-
-    def set_src(self,net,host):
-        self.src_net = int(net)
-        self.src_host = int(host)
-
-    def set_dst(self,net,host):
-        self.dst_net = int(net)
-        self.dst_host = int(host)
-
-    def set_len(self,packet_len):
-        self.len = packet_len
-
 def crc16(buff, crc = 0, poly = 0xa001):
     l = len(buff)
     i = 0
@@ -37,9 +18,80 @@ def crc16(buff, crc = 0, poly = 0xa001):
     return crc & 0xff
 
 
-def process_data(data):
-    print data
-    #data processing
+class packet:
+    def __init__(self,src=0,dst=0,len=0):
+        self.src = [0,0]
+        self.dst = [0,0]
+        self.len = 0
+        self.crc = 0
+        self.data = []
+
+    def check_crc(self):
+        if chr(crc16(self.data)) == self.crc[0] and ord(self.crc[1]) == 255:
+            return 1
+        else:
+            return 0
+
+    @property
+    def len(self):
+        return self._len
+
+    @len.setter
+    def len(self, value):
+        self._len = value
+
+    @len.deleter
+    def len(self):
+        del self._len
+
+    @property
+    def dst(self):
+        return self._dst
+
+    @dst.setter
+    def dst(self, value):
+        self._dst = value 
+
+    @dst.deleter
+    def dst(self):
+        del self._dst
+
+    @property
+    def src(self):
+        return self._src
+
+    @src.setter
+    def src(self, value):
+        self._src = value
+
+    @src.deleter
+    def src(self):
+        del self._src
+
+    @property
+    def crc(self):
+        return self._crc
+
+    @crc.setter
+    def crc(self, value):
+        self._crc = value
+
+    @crc.deleter
+    def crc(self):
+        del self._crc
+    
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
+
+    @data.deleter
+    def data(self):
+        del self._data
+
 
 HOST = 'localhost'    # The remote host
 PORT = 3001             # The same port as used by the server
@@ -51,24 +103,24 @@ while bla == 1:
     if (byte_receive==chr(1)):
         packet = packet()
         buffert = 0
-        packet.set_src(ord(s.recv(1)),ord(s.recv(1)))
-        packet.set_dst(ord(s.recv(1)),ord(s.recv(1)))
-        packet.set_len(ord(s.recv(1)))
+        packet.src = [ord(s.recv(1)),ord(s.recv(1))]
+        packet.dst = [ord(s.recv(1)),ord(s.recv(1))]
+        packet.len = ord(s.recv(1))
         data = []
         while (buffert != packet.len):
             buffert=buffert+1
             data.append(s.recv(1))
-        print ''.join(data)
-        crc1 = s.recv(1)
-        crc2 = s.recv(1) 
-        if chr(crc16(data)) == crc1 and ord(crc2) == 255:
-            print "CRC Valid: %s %s" % (crc16(data),ord(crc1))
+        packet.data = data
+        packet.crc = "%s%s" %(s.recv(1),s.recv(1))
+        print "Packet data: %s" % ''.join(packet.data)
+        if packet.check_crc: 
+            print "Packet CRC: valid %s %s" % (crc16(packet.data),ord(packet.crc[0]))
         else:
-            print "CRC Invalid: %s %s" % (crc16(data),ord(crc1))
+            print "Packet CRC: invalid %s %s" % (crc16(packet.data),ord(packet.crc[0]))
         bla = 0
         print "Packet len: %s" % packet.len
-        print "Packet src_net: %s" % packet.src_net
-        print "Packet src_host: %s" % packet.src_host
-        print "Packet dst_net: %s" % packet.dst_net
-        print "Packet dst_host: %s" % packet.dst_host
+        print "Packet src_net: %s" % packet.src[0]
+        print "Packet src_host: %s" % packet.src[1]
+        print "Packet dst_net: %s" % packet.dst[0]
+        print "Packet dst_host: %s" % packet.dst[1]
 s.close()
