@@ -18,7 +18,7 @@ def crc16(buff, crc = 0, poly = 0xa001):
     return crc & 0xff
 
 
-class packet:
+class packet(object):
     def __init__(self,src=0,dst=0,len=0):
         self.src = [0,0]
         self.dst = [0,0]
