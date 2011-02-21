@@ -1,25 +1,25 @@
 import serial
 import socket
 
-def crc(data):
-    crc = 0
+def checksum(data):
+    checksum = 0
     i = 0
     while i < len(data):
-        crc = crc + ord(data[i])
+        checksum = checksum + ord(data[i])
         i += 1
-    return [((crc>>8)&255),((crc)& 255)]
+    return [((checksum>>8)&255),((checksum)& 255)]
 
 class packet(object):
     def __init__(self,src=0,dst=0,len=0):
         self.src = [0,0]
         self.dst = [0,0]
         self.len = 0
-        self.crc = 0
+        self.checksum = 0
         self.data = []
 
-    def check_crc(self):
-        crc_data = crc(self.data)
-        if crc_data[0] == self.crc[0] and crc_data[1] == self.crc[1]:
+    def check_checksum(self):
+        checksum_data = checksum(self.data)
+        if checksum_data[0] == self.checksum[0] and checksum_data[1] == self.checksum[1]:
             return 1
         else:
             return 0
@@ -61,16 +61,16 @@ class packet(object):
         del self._src
 
     @property
-    def crc(self):
-        return self._crc
+    def checksum(self):
+        return self._checksum
 
-    @crc.setter
-    def crc(self, value):
-        self._crc = value
+    @checksum.setter
+    def checksum(self, value):
+        self._checksum = value
 
-    @crc.deleter
-    def crc(self):
-        del self._crc
+    @checksum.deleter
+    def checksum(self):
+        del self._checksum
     
     @property
     def data(self):
@@ -103,9 +103,9 @@ while bla == 1:
             buffert=buffert+1
             data.append(s.recv(1))
         packet.data = data
-        packet.crc = "%s%s" %(s.recv(1),s.recv(1))
+        packet.checksum = "%s%s" %(s.recv(1),s.recv(1))
         print "Packet data: %s" % ''.join(packet.data)
-        if packet.check_crc: 
+        if packet.check_checksum: 
             print "Packet CRC: valid"
         else:
             print "Packet CRC: invalid"

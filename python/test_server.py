@@ -1,18 +1,18 @@
 import SocketServer
 
-def getcrc(data):
-    crc = 0
+def getchecksum(data):
+    checksum = 0
     i = 0
     while i < len(data):
-        crc = crc + ord(data[i])
+        checksum = checksum + ord(data[i])
         i += 1
-    return [((crc>>8)&255),((crc)& 255)]
+    return [((checksum>>8)&255),((checksum)& 255)]
 
 def sendMSG(src_net,src_host,dst_net,dst_host,data):
     _len = len(data)
-    crc = getcrc(data) 
+    checksum = getchecksum(data) 
     packet=[1,src_net,src_host,dst_net,dst_host,_len]
-    return  "%s%s%s" % (''.join(map(chr, packet)),data,''.join(map(chr,crc)))
+    return  "%s%s%s" % (''.join(map(chr, packet)),data,''.join(map(chr,checksum)))
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
     def handle(self):
