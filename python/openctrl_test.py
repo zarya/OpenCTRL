@@ -20,6 +20,22 @@ class packet:
     def set_len(self,packet_len):
         self.len = packet_len
 
+def crc16(buff, crc = 0, poly = 0xa001):
+    l = len(buff)
+    i = 0
+    while i < l:
+        ch = ord(buff[i])
+        uc = 0
+        while uc < 8:
+            if (crc & 1) ^ (ch & 1):
+                crc = (crc >> 1) ^ poly
+            else:
+                crc >>= 1
+            ch >>= 1
+            uc += 1
+        i += 1
+    return crc & 0xff
+
 
 def process_data(data):
     print data
@@ -38,10 +54,17 @@ while bla == 1:
         packet.set_src(ord(s.recv(1)),ord(s.recv(1)))
         packet.set_dst(ord(s.recv(1)),ord(s.recv(1)))
         packet.set_len(ord(s.recv(1)))
+        data = []
         while (buffert != packet.len):
             buffert=buffert+1
-            print s.recv(1)
-        print ("CRC: %s%s" % (ord(s.recv(1)),ord(s.recv(1))))
+            data.append(s.recv(1))
+        print ''.join(data)
+        crc1 = s.recv(1)
+        crc2 = s.recv(1) 
+        if chr(crc16(data)) == crc1 and ord(crc2) == 255:
+            print "CRC Valid: %s %s" % (crc16(data),ord(crc1))
+        else:
+            print "CRC Invalid: %s %s" % (crc16(data),ord(crc1))
         bla = 0
         print "Packet len: %s" % packet.len
         print "Packet src_net: %s" % packet.src_net
