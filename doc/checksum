@@ -1,0 +1,11 @@
+Checksum calculation
+
+Python:
+def checksum(data):
+    checksum = 0
+    i = 0
+    while i < len(data):
+        checksum = checksum + ord(data[i])
+        i += 1
+    return [((checksum>>8)&255),((checksum)& 255)]
+
