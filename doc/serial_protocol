@@ -2,8 +2,8 @@ CRC byte komt aan het eind van de packet zodat je de de checksum kan computen ti
 De CRC bytes worden meegeteld in data length
 
 ------------------------------------------------------------------------------
-|            | Source      | Destination | Len  | Data           | CRC       |
+|            | Source      | Destination | Len  | Data           | Checksum  |
 | Start byte | Net  | Dev  | Net  | Dev  |      |                |           |
 ------------------------------------------------------------------------------
-| 0x00       | 0x01 | 0x01 | 0x01 | 0x01 | 0x00 | 0x00,0x00,0x00 | 0x00,0x00 |
+| 0x01       | 0x01 | 0x01 | 0x01 | 0x01 | 0x00 | 0x00,0x00,0x00 | 0x00,0x00 |
 ------------------------------------------------------------------------------
