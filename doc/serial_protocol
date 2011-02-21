@@ -1,9 +1,9 @@
 CRC byte komt aan het eind van de packet zodat je de de checksum kan computen tijdens het verzenden, dit bespaard processing tijd uit 
 De CRC bytes worden meegeteld in data length
 
-------------------------------------------
-|            | Source      | Destination |
-| Start byte | Net  | Dev  | Net  | Dev  |
-------------------------------------------
-| 0x00       | 0x01 | 0x01 | 0x01 | 0x01 | 
-------------------------------------------
+------------------------------------------------------------------------------
+|            | Source      | Destination | Len  | Data           | CRC       |
+| Start byte | Net  | Dev  | Net  | Dev  |      |                |           |
+------------------------------------------------------------------------------
+| 0x00       | 0x01 | 0x01 | 0x01 | 0x01 | 0x00 | 0x00,0x00,0x00 | 0x00,0x00 |
+------------------------------------------------------------------------------
