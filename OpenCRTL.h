@@ -14,7 +14,7 @@ typedef unsigned long long uint64;
 #define SERIAL_TIMEOUT_LIMIT 1000 // 1000 loop cycles is timeout
 
 // packet specs
-#define SER_HEADER_LENGTH 7
+#define SER_HEADER_LENGTH 6
 #define SER_MAX_DATA_LENGTH 32
 #define CHECKSUM_SIZE 2 // 2 bytes 16 bit == checksum should be enough...
 
@@ -32,7 +32,7 @@ typedef union _SSerialHeader {
 	  uint8 m_nSourceDeviceID;
 	  uint8 m_nDestinationNetwork;  // is set by de master
 	  uint8 m_nDestinationDevice;   // device ID word ingesteld 
-	  uint16 m_nPacketID;
+	  uint8 m_nPacketID;
 	  // maximum size 32 bytes
 	  uint8 m_nPacketLength; // == maximum is 32
      };
