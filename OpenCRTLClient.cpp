@@ -190,7 +190,7 @@ int sendData(bool _waitForResponse)
 	  }
 	  
 	  // write checksum to bus
-	  for (idx = 0; idx < CHECKSUM_SIZE; idx++)
+	  for (; idx < CHECKSUM_SIZE; idx++)
 	  {
 	       serBus.print(cs.arr[idx], BYTE);
 	  }

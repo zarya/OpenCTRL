@@ -36,7 +36,7 @@ typedef union _SSerialHeader {
 	  // maximum size 32 bytes
 	  uint8 m_nPacketLength; // == maximum is 32
      };
-     uint8 arr[SER_HEADER_LENGTH]; // this works?
+     uint8 arr[SER_HEADER_LENGTH];
 } SSerialHeader;
 
 // define the total packet
