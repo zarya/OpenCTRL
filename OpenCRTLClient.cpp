@@ -173,25 +173,20 @@ int sendData(bool _waitForResponse)
      {
 	  // if bus full don't send yet and just return and keep buffers
 	  // else we can send the data
-	  
  	  register uint8 idx = 0;
 	  union _checksum {
 	       uint16 checksum;
 	       uint8 arr[CHECKSUM_SIZE];
 	  } cs;
-	  
-	  // write header to bus
-	  for (; idx < SER_HEADER_LENGTH; idx++)
+
+	  uint8 *ptrOutputBuffer = (uint8 *)&sOutput; // output buffer start
+	  uint8 *ptrOutputFinished = (ptrOutputBuffer + sizeof(SSerialHeader) + sOutput.header.m_nPacketLength);
+
+	  // barf whole buffer to bus...
+	  while (ptrOutputBuffer <= ptrOutputFinished)
 	  {
-	       cs.checksum += sOutput.header.arr[idx];
-	       serBus.print(sOutput.header.arr[idx], BYTE);
-	  }
-	  
-	  // write data to bus
-	  for (idx = 0; idx < sOutput.header.m_nPacketLength; idx++)
-	  {
-	       cs.checksum += sOutput.data[idx];
-	       serBus.print(sOutput.data[idx], BYTE);
+	       cs.checksum += *ptrOutputBuffer;
+	       serBus.print(*ptrOutputBuffer++, BYTE);
 	  }
 	  
 	  // write checksum to bus

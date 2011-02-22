@@ -36,14 +36,14 @@ typedef union _SSerialHeader {
 	  // maximum size 32 bytes
 	  uint8 m_nPacketLength; // == maximum is 32
      };
-     uint8 arr[SER_HEADER_LENGTH];
+     uint8 arr[SER_HEADER_LENGTH]; // this works?
 } SSerialHeader;
 
 // define the total packet
 
 typedef struct _SPacket {
-  SSerialHeader header;
-  uint8 data[SER_MAX_DATA_LENGTH + CHECKSUM_SIZE]; // max data length + 2 for the checksum
+     SSerialHeader header;
+     uint8 data[SER_MAX_DATA_LENGTH + CHECKSUM_SIZE]; // max data length + 2 for the checksum
 } SPacket;
 
 void setup(void);
