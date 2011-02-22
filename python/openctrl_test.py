@@ -23,7 +23,7 @@ class packet(object):
 
     def check_checksum(self):
         
-        checksum_data = checksum(''.join([self.src[0],self.src[1],self.dst[0],self.dst[1],self.id[0],self.id[1],self.len,self.data]))
+        checksum_data = checksum(''.join([self.src[0],self.src[1],self.dst[0],self.dst[1],self.id,self.len,self.data]))
         if checksum_data[0] == self.checksum[0] and checksum_data[1] == self.checksum[1]:
             return 1
         else:
@@ -35,28 +35,39 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 bla = 1
 while bla == 1:
-    packet = packet()
+    #Recieve data from application master
+    packet = packet() #Start packet class
     buffert = 0
-    packet.src = [ord(s.recv(1)),ord(s.recv(1))]
-    packet.dst = [ord(s.recv(1)),ord(s.recv(1))]
-    packet.id = [ord(s.recv(1)),ord(s.recv(1))]
-    packet.len = ord(s.recv(1))
+    packet.src = [ord(s.recv(1)),ord(s.recv(1))]    #recieve source address
+    packet.dst = [ord(s.recv(1)),ord(s.recv(1))]    #recieve destination address
+    packet.id = [ord(s.recv(1))]                    #recieve packet id
+    packet.len = ord(s.recv(1))                     #recieve packet len
     data = []
+    #Start recieving packet data
     while (buffert != packet.len):
         buffert=buffert+1
         data.append(s.recv(1))
-    packet.data = data
-    packet.checksum = "%s%s" %(s.recv(1),s.recv(1))
+    packet.data = data # Add the recieved data to the packet
+    packet.checksum = "%s%s" %(s.recv(1),s.recv(1)) #recieve the packet checksum
     print "Packet data: %s" % ''.join(packet.data)
+    #Check if the checksum is ok
     if packet.check_checksum: 
         print "Packet Checksum: valid"
     else:
+        #Need to fix something that if invallid request retransmit
         print "Packet Checksum: invalid"
     bla = 0
+    #Packet data
     print "Packet len: %s" % packet.len
     print "Packet ID: %s" % (packet.id[0]+packet.id[1])
     print "Packet src_net: %s" % packet.src[0]
     print "Packet src_host: %s" % packet.src[1]
     print "Packet dst_net: %s" % packet.dst[0]
     print "Packet dst_host: %s" % packet.dst[1]
+    #Push data to RS485 bus or something
+    
+    #wait for return data
+    
+    #return data to application master 
+
 s.close()
