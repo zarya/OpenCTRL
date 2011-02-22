@@ -1,4 +1,38 @@
-Readme
+Bus Configuration:
+    - All devices have a 8bit dipswitch on which you'll be able to set the device ID (we still need a way to avoid collisions)
+    - All devices have a 1bit dipswitch / jumper which will make the device act as Bus Master or Bus Slave (Client) (we still need a way to avoid collisions)
+    - The Device ID of the master is the Bus ID this means that if the master has Device ID 101 the Bus will also have ID 101
+    - The master can send commands to the clients but the clients only submit changes to there state, for example a temperature change or an switch flip. This with the idea that polling will be to excessive on the bus.
+      	  BUG WARNING: Maybe we will have major timing problems and we need to switch back to polling anyhow...
+    - 
 
-Work in Progress
-Work in Progress
+Protocol Ideas:
+    - A new client sends a HELLO packet to the network and the master sends back an WELCOME packet | Hello packet specs will follow shortly
+    - When the power of the master was down the master will poll all network nods to see if there is a device connected
+      	   BUG WARNING: How do the devices know if they are powered on for the first time or they sufferd from a power loss (not all device support Broun Out Detection nor do they have writable EEPROM) (If the device is unplugged from one network and placed in another they however do need to get new configurations...) (Maybe introduce a button push so devices reset and send an HELLO packet, else they will wait for a master network poll)?
+    - The 0 address doesn't exists in any case and can be used for broadcasting only by the masters. This can be used for a RESET all devices to original state or whatever.
+    - Packet Header:
+
++-+-+-+-+-+-+-+-+
+|0|1|2|3|4|5|6|7|
++-+-+-+-+-+-+-+-+
+| src bus id    | 1ste byte
++---------------+
+| src device id | 2nd byte
++---------------+
+| dest bus id   | 3th byte
++---------------+
+| dest dev id   | 4th byte
++---------------+
+| packet id     | 5th byte
++               +
+|               | 6th byte
++---------------+
+| len or prot   | 7th byte
++---------------+
+
+Byte 7 is or the packet length ranging from 0-32 or a protocol function 33-255:
+     - The proctol functions start counting from the 255 downwards this so we can might increase the data length later on.
+
+Then the data section can be 32 bytes long.
+After the data section there is a 16bit / 2 byte checksum of the whole packet so HEADER + DATA

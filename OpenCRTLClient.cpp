@@ -1,3 +1,4 @@
+#include "WProgram.h"
 #include <NewSoftSerial.h>
 #include "OpenCRTL.h"
 
@@ -173,10 +174,10 @@ int sendData(bool _waitForResponse)
 	  // if bus full don't send yet and just return and keep buffers
 	  // else we can send the data
 	  
-	  register char idx = 0;
+ 	  register uint8 idx = 0;
 	  union _checksum {
 	       uint16 checksum;
-	       char arr[CHECKSUM_SIZE];
+	       uint8 arr[CHECKSUM_SIZE];
 	  } cs;
 	  
 	  // write header to bus
@@ -226,6 +227,7 @@ int recvWelcome(void)
 {
      if (bWaitForResponse && sInput.header.m_nPacketID == nLastPacketID)
      {
+	  nMasterID = sInput.header.m_nSourceDeviceID;
 	  nNetworkID = sInput.header.m_nDestinationNetwork;
 
 	  // we got our network \o/

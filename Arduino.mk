@@ -259,7 +259,8 @@ $(OBJDIR)/%.d: %.s
 	$(CC) -MM $(CPPFLAGS) $(ASFLAGS) $< -MF $@ -MT $(@:.d=.o)
 
 # the pde -> cpp -> o file
-$(OBJDIR)/%.cpp: %.pde
+#$(OBJDIR)/%.cpp: %.pde
+$(OBJDIR)/%.cpp: %.cpp
 	$(ECHO) $(PDEHEADER) > $@
 	$(CAT)  $< >> $@
 
