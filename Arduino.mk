@@ -259,12 +259,13 @@ $(OBJDIR)/%.d: %.s
 	$(CC) -MM $(CPPFLAGS) $(ASFLAGS) $< -MF $@ -MT $(@:.d=.o)
 
 # the pde -> cpp -> o file
-$(OBJDIR)/%.cpp: %.pde
+#$(OBJDIR)/%.cpp: %.pde
+$(OBJDIR)/%.cpp: %.cpp
 	$(ECHO) $(PDEHEADER) > $@
 	$(CAT)  $< >> $@
 
 $(OBJDIR)/%.o: $(OBJDIR)/%.cpp
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@ $(ARD_LIB_FILES)
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 $(OBJDIR)/%.d: $(OBJDIR)/%.cpp
 	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $< -MF $@ -MT $(@:.d=.o)
