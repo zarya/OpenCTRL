@@ -37,9 +37,9 @@ After the data section there is a 16bit / 2 byte checksum of the whole packet so
 
 Helo packet:
 |-----------------------------------------------|
-| Source    | Dest.     | Len  | Checksum       |
-| Bus | Dev | Bus | Dev | Type |                |
-| 0   | $id | 0   | 0   | 255  | Byte 1 | Byte 2|
+| Source    | Dest.     | Id | Len  | Checksum       |
+| Bus | Dev | Bus | Dev |    | Type |                |
+| 0   | $id | 0   | 0   | 0  | 255  | Byte 1 | Byte 2|
 |-----------------------------------------------|
 
     - $id is set on the device by the dipswitch
