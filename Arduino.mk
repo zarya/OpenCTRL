@@ -264,7 +264,7 @@ $(OBJDIR)/%.cpp: %.pde
 	$(CAT)  $< >> $@
 
 $(OBJDIR)/%.o: $(OBJDIR)/%.cpp
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@ $(ARD_LIB_FILES)
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 $(OBJDIR)/%.d: $(OBJDIR)/%.cpp
 	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $< -MF $@ -MT $(@:.d=.o)
