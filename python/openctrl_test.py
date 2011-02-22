@@ -42,12 +42,10 @@ while bla == 1:
     packet.dst = [ord(s.recv(1)),ord(s.recv(1))]    #recieve destination address
     packet.id = [ord(s.recv(1))]                    #recieve packet id
     packet.len = ord(s.recv(1))                     #recieve packet len
-    data = []
     #Start recieving packet data
     while (buffert != packet.len):
         buffert=buffert+1
-        data.append(s.recv(1))
-    packet.data = data # Add the recieved data to the packet
+        packet.data.append(s.recv(1)) # add the recieved data to the packet
     packet.checksum = "%s%s" %(s.recv(1),s.recv(1)) #recieve the packet checksum
     print "Packet data: %s" % ''.join(packet.data)
     #Check if the checksum is ok
