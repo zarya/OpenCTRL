@@ -25,13 +25,11 @@ Protocol Ideas:
 | dest dev id   | 4th byte
 +---------------+
 | packet id     | 5th byte
-+               +
-|               | 6th byte
 +---------------+
-| len or prot   | 7th byte
+| len or prot   | 6th byte
 +---------------+
 
-Byte 7 is or the packet length ranging from 0-32 or a protocol function 33-255:
+Byte 6 is or the packet length ranging from 0-32 or a protocol function 33-255:
      - The proctol functions start counting from the 255 downwards this so we can might increase the data length later on.
 
 Then the data section can be 32 bytes long.
