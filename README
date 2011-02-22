@@ -41,3 +41,5 @@ Helo packet:
 | Bus | Dev | Bus | Dev | Type |                |
 | 0   | $id | 0   | 0   | 255  | Byte 1 | Byte 2|
 |-----------------------------------------------|
+
+    - $id is set on the device by the dipswitch
