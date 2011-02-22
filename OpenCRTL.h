@@ -20,10 +20,14 @@ typedef unsigned long long uint64;
 
 #define OCTRL_MSG_TYPE_START 255 // count backwards so we might can increase data length later ;)
 
-#define OCTRL_PING OCTRL_MSG_TYPE_START - 0
-#define OCTRL_PONG OCTRL_MSG_TYPE_START - 1
-#define OCTRL_HELLO OCTRL_MSG_TYPE_START -2
-#define OCTRL_WELCOME OCTRL_MSG_TYPE_START - 3
+#define OCTRL_PING OCTRL_MSG_TYPE_START - 0 // ping packet
+#define OCTRL_PONG OCTRL_MSG_TYPE_START - 1 // pong packet
+#define OCTRL_HELLO OCTRL_MSG_TYPE_START -2 // hello packet (send by device when first plugged in)
+#define OCTRL_WELCOME OCTRL_MSG_TYPE_START - 3 // welcome packet (send by master when received hello packet)
+#define OCTRL_ACK OCTRL_MSG_TYPE_START - 4 // ACK packet send in reply to notifie the the sender that the packet was received successfuly so it can be removed from the send buffer
+#define OCTRL_REPORT OCTRL_MSG_TYPE_START - 5 // Send by the master to an node to make it report it's status
+#define OCTRL_SILENC OCTRL_MSG_TYPE_START - 6 // Send by the master to claim the line and make all nods shut the fuck up (can be directed at one client or broadcasted)
+#define OCTRL_RESUME OCTRL_MSG_TYPE_START - 7 // Send by the master to make all nodes resume normal operation and notify that the can use the bus again (can be directed at one client or broadcasted)
 
 // define the serial header for the packets
 typedef union _SSerialHeader {
