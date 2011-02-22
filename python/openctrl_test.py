@@ -16,13 +16,14 @@ class packet(object):
     def __init__(self):
         self.src = [0,0]
         self.dst = [0,0]
+        self.id = [0,0]
         self.len = 0
         self.checksum = 0
         self.data = []
 
     def check_checksum(self):
         
-        checksum_data = checksum(''.join([self.src[0],self.src[1],self.dst[0],self.dst[1],self.len,self.data]))
+        checksum_data = checksum(''.join([self.src[0],self.src[1],self.dst[0],self.dst[1],self.id[0],self.id[1],self.len,self.data]))
         if checksum_data[0] == self.checksum[0] and checksum_data[1] == self.checksum[1]:
             return 1
         else:
@@ -38,6 +39,7 @@ while bla == 1:
     buffert = 0
     packet.src = [ord(s.recv(1)),ord(s.recv(1))]
     packet.dst = [ord(s.recv(1)),ord(s.recv(1))]
+    packet.id = [ord(s.recv(1)),ord(s.recv(1))]
     packet.len = ord(s.recv(1))
     data = []
     while (buffert != packet.len):
@@ -52,6 +54,7 @@ while bla == 1:
         print "Packet Checksum: invalid"
     bla = 0
     print "Packet len: %s" % packet.len
+    print "Packet ID: %s" % (packet.id[0]+packet.id[1])
     print "Packet src_net: %s" % packet.src[0]
     print "Packet src_host: %s" % packet.src[1]
     print "Packet dst_net: %s" % packet.dst[0]
