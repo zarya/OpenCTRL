@@ -4,12 +4,12 @@
 
 #define isChecksumValid() (*((uint16*)ptrChecksumStart) == nChecksum)
 
-NewSoftSerial serBus(2, 3);
+NewSoftSerial serBus(3, 4);
 
 // generic bus status
 bool bBusBusy = false; // set when input occures or we are ouputting
 uint8 nNetworkID = 0;
-uint8 nDeviceID = 0;
+uint8 nDeviceID = 10;
 uint8 nMasterID = 0;
 
 // serial input variables (buffers and indexes)
@@ -31,7 +31,7 @@ int nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 
 void setup(void)
 {
-     Serial.begin(57600);
+     Serial.begin(9600);
      Serial.println("Loading OpenCTRL Client...");
      Serial.println("Starting soft serial interface");
      initSerial();
@@ -48,8 +48,8 @@ void setup(void)
 void loop(void)                     // run over and over again
 {
      // main loop
-     sendData();
-     delay(SERIAL_WAIT_TIME);
+     //sendData();
+     //delay(SERIAL_WAIT_TIME);
 }
 
 void initSerial()
@@ -60,12 +60,22 @@ void initSerial()
 
 void initOpenCTRL()
 {
+     if (RS485 > 0)
+          pinMode(RS485, OUTPUT);
 // TODO only when device is not set master!!! If is set master start initial ping to all nods... 
 // BUG How does the device know when it's newly added to the BUS or it sufferd from power loss, not all MCU's have Brown Out Register
      if (false) // TODO check master pin
 	  return; // scanNetwork()
      else
+     {
 	  sendHello();
+      delay(500);
+      sendData();
+     }
+     while (1) {
+
+     }
+       
 }
 
 void readSerial()
@@ -182,6 +192,9 @@ int sendData(void )
 
 	  uint8 *ptrOutputBuffer = (uint8 *)&sOutput; // output buffer start
 	  uint8 *ptrOutputFinished = (ptrOutputBuffer + sizeof(SSerialHeader) + sOutput.header.m_nPacketLength);
+      
+      if (RS485 > 0)
+          digitalWrite(RS485,HIGH);
 
 	  // barf whole buffer to bus...
 	  while (ptrOutputBuffer <= ptrOutputFinished)
@@ -193,6 +206,9 @@ int sendData(void )
 	  // write checksum to bus
 	  for (; idx < CHECKSUM_SIZE; idx++)
 	       serBus.print(cs.arr[idx], BYTE);
+
+      if (RS485 > 0)
+           digitalWrite(RS485,LOW);
 	  
 	  if (! bWaitForResponse)
 	       sendFinished();
