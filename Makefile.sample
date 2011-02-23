@@ -1,3 +1,7 @@
+#Project Settings
+# Configuration Settings
+DEFINES = -DSERIAL_DEBUG -DMAX_RS485
+
 #Generic settings!
 # The arduino directories
 ARDUINO_DIR=/usr/share/arduino
