@@ -25,7 +25,7 @@ bool bInvalidPacket = false;
 SPacket sOutput;
 bool bOutputReady = false;
 bool bWaitForResponse = false;
-uint16 nLastPacketID = 0; // remember to check if the master recved our 'interrupt / state change'
+uint8 nLastPacketID = 0; // remember to check if the master recved our 'interrupt / state change'
 
 int nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 
@@ -181,7 +181,7 @@ int sendData(void )
 	  } cs;
 
 	  uint8 *ptrOutputBuffer = (uint8 *)&sOutput; // output buffer start
-	  uint8 *ptrOutputFinished = (ptrOutputBuffer + sizeof(SSerialHeader) + sOutput.header.m_nPacketLength);
+	  uint8 *ptrOutputFinished = (ptrOutputBuffer + sizeof(SSerialHeader) + (sOutput.header.m_nPacketLength > SER_MAX_DATA_LENGTH ? 0 : sOutput.header.m_nPacketLength));
 
 	  // barf whole buffer to bus...
 	  while (ptrOutputBuffer <= ptrOutputFinished)
