@@ -133,8 +133,13 @@ ifndef AVRDUDE_CONF
 AVRDUDE_CONF     = $(ARDUINO_ETC_PATH)/avrdude.conf
 endif
 
-ARDUINO_LIB_PATH  = $(ARDUINO_DIR)/libraries
+ifndef ARDUINO_LIB_PATH
+ARDUINO_LIB_PATH  = $(ARDUINO_DIR)/hardware/libraries
+endif
+
+ifndef ARDUINO_CORE_PATH
 ARDUINO_CORE_PATH = $(ARDUINO_DIR)/hardware/arduino/cores/arduino
+endif
 
 endif
 
@@ -164,7 +169,8 @@ CORE_C_SRCS     = $(wildcard $(ARDUINO_CORE_PATH)/*.c)
 CORE_CPP_SRCS   = $(wildcard $(ARDUINO_CORE_PATH)/*.cpp)
 CORE_OBJ_FILES  = $(CORE_C_SRCS:.c=.o) $(CORE_CPP_SRCS:.cpp=.o)
 CORE_OBJS       = $(patsubst $(ARDUINO_CORE_PATH)/%,  \
-			$(OBJDIR)/%,$(CORE_OBJ_FILES))
+			$(OBJDIR)/%,\
+			$(CORE_OBJ_FILES))
 endif
 endif
 
@@ -172,10 +178,12 @@ endif
 SYS_LIBS      = $(patsubst %,$(ARDUINO_LIB_PATH)/%,$(ARDUINO_LIBS))
 ARD_LIB_FILES = $(wildcard $(SYS_LIBS)/*.cpp)
 SYS_INCLUDES  = $(patsubst %,-I%,$(SYS_LIBS))
-SYS_OBJS      = $(wildcard $(patsubst %,%/*.o,$(SYS_LIBS)))
+SYS_OBJS      = $(patsubst $(ARDUINO_LIB_PATH)/%,\
+			$(OBJDIR)/%, \
+			$(SYS_LIBS)/$(ARDUINO_LIBS).o)
 
 # all the objects!
-OBJS            = $(LOCAL_OBJS) $(CORE_OBJS)
+OBJS            = $(LOCAL_OBJS) $(CORE_OBJS) $(SYS_OBJS)
 
 ########################################################################
 # Rules for making stuff
@@ -278,10 +286,12 @@ $(OBJDIR)/%.o: $(ARDUINO_CORE_PATH)/%.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 # librarie files
-$(OBJDIR)/%.o: $(SYS_LIBS)/%.cpp
+$(OBJDIR)/%.o: $(ARD_LIB_FILES)
+	$(ECHO) $(SYS_LIBS)
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-$(OBJDIR)/%.o: $(SYS_LIBS)/%.c
+$(OBJDIR)/%.o: $(ARD_LIB_FILES)
+	$(ECHO) $(SYS_LIBS)
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 # various object conversions
@@ -357,9 +367,10 @@ all: 		$(OBJDIR) $(TARGET_HEX)
 
 $(OBJDIR):
 		mkdir $(OBJDIR)
+		mkdir $(patsubst %,$(OBJDIR)/%,$(ARDUINO_LIBS))
 
-$(TARGET_ELF): 	$(OBJS)
-		$(CC) $(LDFLAGS) -o $@ $(OBJS) $(SYS_OBJS)
+$(TARGET_ELF): 	$(OBJS) $(SYS_OBJS)
+		$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
 $(DEP_FILE):	$(OBJDIR) $(DEPS)
 		cat $(DEPS) > $(DEP_FILE)
