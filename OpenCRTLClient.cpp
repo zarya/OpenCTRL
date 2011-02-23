@@ -39,16 +39,17 @@ void setup(void)
      initOpenCTRL();
 
      // only for startup use delay and start to make sure the bus is empty before trying to send
-     delay(100);
+     delay(500);
      readSerial();
-     delay(100);
+     delay(500);
      readSerial();
-     sendData();
 }
 
 void loop(void)                     // run over and over again
 {
      // main loop
+     sendData();
+     delay(SERIAL_WAIT_TIME);
 }
 
 void initSerial()
@@ -167,7 +168,7 @@ int handleProtocolPacket(void)
 }
 
 //int sendData(char *header, char *sendData, char nDataLength)
-int sendData(bool _waitForResponse)
+int sendData(void )
 {
      if (!bBusBusy && bOutputReady)
      {
@@ -191,13 +192,9 @@ int sendData(bool _waitForResponse)
 	  
 	  // write checksum to bus
 	  for (; idx < CHECKSUM_SIZE; idx++)
-	  {
 	       serBus.print(cs.arr[idx], BYTE);
-	  }
 	  
-	  if (_waitForResponse)
-	       bWaitForResponse = _waitForResponse;
-	  else
+	  if (! bWaitForResponse)
 	       sendFinished();
      }
 }

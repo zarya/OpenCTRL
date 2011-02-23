@@ -12,6 +12,7 @@ typedef unsigned long long uint64;
 #define false 0
 
 #define SERIAL_TIMEOUT_LIMIT 1000 // 1000 loop cycles is timeout
+#define SERIAL_WAIT_TIME 32000000 // 32000000 cycles == more then 2 seconds
 
 // packet specs
 #define SER_HEADER_LENGTH 6
@@ -55,7 +56,7 @@ void loop(void)  ;                   // run over and over again
 inline void timeoutProtection();
 int handleProtocolPacket(void);
 int sendPong(void);
-int sendData(bool _waitForResponse = false); // normaly respond to master so we don't care, master asks again
+int sendData(void ); // normaly respond to master so we don't care, master asks again
 int recFinished(void);
 int sendFinished(void);
 void initSerial();
