@@ -1,3 +1,4 @@
+#Generic settings!
 # The arduino directories
 ARDUINO_DIR=/usr/share/arduino
 ARDUINO_LIB_PATH  = $(ARDUINO_DIR)/libraries
@@ -18,8 +19,17 @@ ARDUINO_LIBS=NewSoftSerial
 # Arduino CPU Speed
 F_CPU=16000000
 
-# Port where we can find the arduino (Normaly ttyACM* (for newer) or ttyUSB* (for older))
-ARDUINO_PORT=/dev/ttyUSB0
+# Port where we can find the arduino (Normaly ttyACM* or ttyUSB*)
+ARDUINO_PORT=/dev/ttyACM0
+
+#Flash Settings
+# What programmer to use should be fine(?)
+AVRDUDE_ARD_PROGRAMMER = stk500v1
+
+# This can be a bitch.. newer devices have faster baudrate
+# - pro mini = 57600
+# more to follow
+AVRDUDE_ARD_BAUDRATE   = 19200
 
 # The actual make file
 include Arduino.mk
