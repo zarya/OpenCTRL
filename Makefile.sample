@@ -16,7 +16,7 @@ TARGET=OpenCRTLClient
 ARDUINO_LIBS=NewSoftSerial
 
 # Arduino CPU Speed
-F_CPU=20000000
+F_CPU=16000000
 
 # Port where we can find the arduino (Normaly ttyACM* (for newer) or ttyUSB* (for older))
 ARDUINO_PORT=/dev/ttyUSB0
