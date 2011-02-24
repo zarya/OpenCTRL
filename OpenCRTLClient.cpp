@@ -2,15 +2,38 @@
 #include <NewSoftSerial.h>
 #include "OpenCRTL.h"
 
+#define MASTER 1337
+#define SLAVE 31337
+
+#if SER_DEVICE_TYPE != MASTER && SER_DEVICE_TYPE != SLAVE
+#error Device type must be MASTER or SLAVE
+#endif
+
+#if DEVICE_ID <= 0 || DEVICE_ID > 255
+#error Device ID must be between 1 and 255
+#endif
+
+#ifdef SERIAL_DEBUG
+#define dbgPrintln Serial.println
+#define dbgPrint Serial.print
+#define dbgBaudrate Serial.begin
+#else
+#define dbgBaudrate(x)
+#define dbgPrintln(...)
+#define dbgPrint(...)
+#endif
+
 #define isChecksumValid() (*((uint16*)ptrChecksumStart) == nChecksum)
+#define isMaster() (SER_DEVICE_TYPE == MASTER)
+#define isDevice() (SER_DEVICE_TYPE == SLAVE)
 
 NewSoftSerial serBus(2, 3);
 
 // generic bus status
 bool bBusBusy = false; // set when input occures or we are ouputting
-uint8 nNetworkID = 0;
-uint8 nDeviceID = 0;
-uint8 nMasterID = 0;
+uint8 nNetworkID = isMaster() ? DEVICE_ID : 0;
+uint8 nDeviceID = DEVICE_ID;
+uint8 nMasterID = isMaster() ? DEVICE_ID : 0;
 
 // serial input variables (buffers and indexes)
 SPacket sInput;
@@ -31,11 +54,11 @@ int nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 
 void setup(void)
 {
-     Serial.begin(57600);
-     Serial.println("Loading OpenCTRL Client...");
-     Serial.println("Starting soft serial interface");
+     dbgBaudrate(57600);
+     dbgPrintln("Loading OpenCTRL Client...");
+     dbgPrintln("Starting soft serial interface");
      initSerial();
-     Serial.println("Starting OpenCTRL interface (over soft serial)");
+     dbgPrintln("Starting OpenCTRL interface (over soft serial)");
      initOpenCTRL();
 
      // only for startup use delay and start to make sure the bus is empty before trying to send
