@@ -31,7 +31,7 @@ int nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 
 void setup(void)
 {
-     Serial.begin(57600);
+     Serial.begin(9600);
      Serial.println("Loading OpenCTRL Client...");
      Serial.println("Starting soft serial interface");
      initSerial();
@@ -79,6 +79,7 @@ void readSerial()
 	  
 	  // bits... go parse!
 	  *ptrInputBuffer++ = nLastChar = (char)serBus.read();
+
 	  if (ptrInputBuffer < ptrChecksumStart) // only add non checksum to checksum ;)
 	       nChecksum += nLastChar;
 	  
@@ -189,6 +190,7 @@ int sendData(void )
            digitalWrite(RS485,HIGH);
 
 	  // barf whole buffer to bus...
+      int _char;
 	  while (ptrOutputBuffer <= ptrOutputFinished)
 	  {
 	       cs.checksum += *ptrOutputBuffer;
@@ -232,6 +234,9 @@ int recvWelcome(void)
      {
 	  nMasterID = sInput.header.m_nSourceDeviceID;
 	  nNetworkID = sInput.header.m_nDestinationNetwork;
+      Serial.print("Network:");
+      Serial.println(nNetworkID);
+      
 
 	  // we got our network \o/
 	  sendFinished();
