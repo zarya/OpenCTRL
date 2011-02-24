@@ -50,6 +50,7 @@ void loop(void)                     // run over and over again
      // main loop
      sendData();
      delay(SERIAL_WAIT_TIME);
+     readSerial();
 }
 
 void initSerial()
