@@ -1,0 +1,4 @@
+make clean
+make -f Makefile.mega upload
+make clean
+make -f Makefile.uno upload
