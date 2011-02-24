@@ -12,7 +12,7 @@ typedef unsigned long long uint64;
 #define false 0
 
 #define SERIAL_TIMEOUT_LIMIT 1000 // 1000 loop cycles is timeout
-#define SERIAL_WAIT_TIME 200
+#define SERIAL_WAIT_TIME 20000
 
 // packet specs
 #define SER_HEADER_LENGTH 6
