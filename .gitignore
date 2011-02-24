@@ -2,3 +2,4 @@ Makefile
 Makefile.uno
 Makefile.mega
 build-cli/
+build

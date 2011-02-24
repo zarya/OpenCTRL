@@ -1,9 +1,11 @@
 #include "WProgram.h"
+#include <string.h>
+#include <stdarg.h>
 #include <NewSoftSerial.h>
 #include "OpenCRTL.h"
 
-#define MASTER 1337
-#define SLAVE 31337
+#define MASTER 1
+#define SLAVE 2
 
 #if SER_DEVICE_TYPE != MASTER && SER_DEVICE_TYPE != SLAVE
 #error Device type must be MASTER or SLAVE
@@ -13,21 +15,10 @@
 #error Device ID must be between 1 and 255
 #endif
 
-#ifdef SERIAL_DEBUG
-#define dbgPrintln Serial.println
-#define dbgPrint Serial.print
-#define dbgBaudrate Serial.begin
-#else
-#define dbgBaudrate(x)
-#define dbgPrintln(...)
-#define dbgPrint(...)
-#endif
-
 #define isChecksumValid() (*((uint16*)ptrChecksumStart) == nChecksum)
+
 #define isMaster() (SER_DEVICE_TYPE == MASTER)
 #define isDevice() (SER_DEVICE_TYPE == SLAVE)
-
-NewSoftSerial serBus(2, 3);
 
 // generic bus status
 bool bBusBusy = false; // set when input occures or we are ouputting
@@ -52,14 +43,68 @@ uint8 nLastPacketID = 0; // remember to check if the master recved our 'interrup
 
 int nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 
+#ifdef SERIAL_DEBUG
+#define DBG_BUFFERSIZE 128
+static char writeBuffer[DBG_BUFFERSIZE]; // debug write buffer
+
+void dbgPrintln(char *str, ...)
+{
+     va_list va;
+     va_start(va, str);
+     vsnprintf(writeBuffer, DBG_BUFFERSIZE, str, va);
+
+     Serial.println(writeBuffer);
+}
+
+void dbgPrint(char *str, ...)
+{
+     va_list va;
+     va_start(va, str);
+     vsnprintf(writeBuffer, DBG_BUFFERSIZE, str, va);
+     
+     Serial.print(writeBuffer);
+}
+
+// default is received packet: dbgPacket(&sInput) if you want to print output: dbgPacket(&sOutput, false)
+void dbgPacket(SPacket *packet, uint16 _checksum = 0)
+{
+     dbgPrintln("%s (%d.%d) -> (%d.%d)", 
+		_checksum == 0 ? "INPUT" : "OUTPUT",
+		packet->header.m_nSourceNetwork,
+		packet->header.m_nSourceDeviceID,
+		packet->header.m_nDestinationNetwork,
+		packet->header.m_nDestinationDevice );
+     dbgPrintln("Packet ID: %d", packet->header.m_nPacketID);
+     dbgPrintln("Checksum: (%d) %s", (_checksum > 0 ? _checksum : nChecksum), (_checksum ? "" : (isChecksumValid() ? "valid" : "INVALID")));
+     
+     if (packet->header.m_nPacketLength > SER_MAX_DATA_LENGTH)
+	  dbgPrintln("Protocol code: %d", packet->header.m_nPacketLength);
+     else
+	  dbgPrintln("Data length: %d", packet->header.m_nPacketLength);
+
+     register char data = 0;
+     for (; data < packet->header.m_nPacketLength; data++)
+	  dbgPrint("%d ", packet->data[data]);
+
+     dbgPrintln("---------------------------------- \n");
+}
+
+#define dbgBaudrate Serial.begin
+#else
+#define dbgBaudrate(x)
+#define dbgPrintln(...)
+#define dbgPrint(...)
+#endif
+
+NewSoftSerial serBus(2, 3);
+
 void setup(void)
 {
      dbgBaudrate(57600);
-     dbgPrintln("Loading OpenCTRL Client...");
-     dbgPrintln("Starting soft serial interface");
+     dbgPrintln("Loading OpenCTRL...");
      initSerial();
-     dbgPrintln("Starting OpenCTRL interface (over soft serial)");
      initOpenCTRL();
+     dbgPrintln("Running as (%s) with Device ID (%d) and Network ID (%d)", isMaster() ? "MASTER" : "SLAVE", nDeviceID, nNetworkID);
 
      // only for startup use delay and start to make sure the bus is empty before trying to send
      delay(500);
@@ -86,7 +131,7 @@ void initOpenCTRL()
 {
 // TODO only when device is not set master!!! If is set master start initial ping to all nods... 
 // BUG How does the device know when it's newly added to the BUS or it sufferd from power loss, not all MCU's have Brown Out Register
-     if (false) // TODO check master pin
+     if (isMaster()) // TODO check master pin
 	  return; // scanNetwork()
      else
 	  sendHello();
@@ -94,13 +139,16 @@ void initOpenCTRL()
 
 void readSerial()
 {
-     if (serBus.available())
+     while (serBus.available())
      {
 	  nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 	  bBusBusy = true;
 	  
 	  // bits... go parse!
 	  *ptrInputBuffer++ = nLastChar = (char)serBus.read();
+
+	  dbgPrintln("Read char: %u1 - %c1", nLastChar);
+
 	  if (ptrInputBuffer < ptrChecksumStart) // only add non checksum to checksum ;)
 	       nChecksum += nLastChar;
 	  
@@ -114,6 +162,8 @@ void readSerial()
 	  }
 	  else if (ptrInputBuffer == ptrInputFinished) // we got the whole packet let's parse
 	  {
+	       dbgPacket(&sInput);
+
 	       if (!bInvalidPacket)
 	       {
 		    // we got the whole packet! Check if we have anything to do with it...
@@ -154,7 +204,8 @@ void readSerial()
 
 	  // just another char... we don't care ^.^
      }
-     else if (bBusBusy) // bus is busy but we didn't recieve any data 
+     
+     if (bBusBusy) // bus is busy but we didn't recieve any data 
      {
 	  timeoutProtection();
      }
@@ -196,6 +247,8 @@ int sendData(void )
 {
      if (!bBusBusy && bOutputReady)
      {
+	  dbgPrintln("Trying to send data!");
+
 	  // if bus full don't send yet and just return and keep buffers
 	  // else we can send the data
  	  register uint8 idx = 0;
@@ -218,6 +271,9 @@ int sendData(void )
 	  for (; idx < CHECKSUM_SIZE; idx++)
 	       serBus.print(cs.arr[idx], BYTE);
 	  
+	  dbgPrintln("Succesfully outputted:");
+	  dbgPacket(&sOutput, cs.checksum);
+
 	  if (! bWaitForResponse)
 	       sendFinished();
      }

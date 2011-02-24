@@ -15,7 +15,7 @@ ARDUINO_CORE_PATH = $(ARDUINO_DIR)/hardware/arduino/cores/arduino
 MCU=atmega328p
 
 # Project name
-TARGET=OpenCRTLClient
+TARGET=OpenCRTL
 
 # Used libraries. BUG: Now only one is allowed (more will make compile errors)
 ARDUINO_LIBS=NewSoftSerial
