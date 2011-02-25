@@ -29,13 +29,13 @@ ARDUINO_PORT=/dev/ttyACM1
 #Flash Settings
 # What programmer to use:
 # - mega, uno = stk500v2
-AVRDUDE_ARD_PROGRAMMER = stk500v2
+AVRDUDE_ARD_PROGRAMMER = arduino
 
 # This can be a bitch.. newer devices have faster baudrate
 # DON'T SET ANY BITRATE FOR THE NEW MEGA'S OR UNO'S
 # - pro mini = 57600
 # more to follow
-#AVRDUDE_ARD_BAUDRATE   = 115200
+AVRDUDE_ARD_BAUDRATE   = 115200
 
 # The actual make file
 include Arduino.mk
