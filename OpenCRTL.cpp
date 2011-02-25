@@ -187,12 +187,14 @@ void readSerial()
 		    {
 			 // we got nothing to do with it reset buffer for new packet
 			 recFinished();
+			 dbgPrintln("Packet not for us, ignoring...");
 		    }
 	       }
 	       else
 	       {
 		    // invalid packet reset buffers
 		    recFinished();
+		    dbgPrintln("Invalid packet! To bad!");
 	       }
 	  }
 	  else if (ptrInputBuffer == &sInput.data[SER_MAX_DATA_LENGTH])
@@ -200,6 +202,7 @@ void readSerial()
 	       // packet longer then RFC mark invalid and reset pointer to prefent buffer overflow ;)
 	       ptrInputBuffer = &sInput.data[0]; // overwrite previous data invalid anywayzz
 	       bInvalidPacket = true;
+	       dbgPrintln("WARNING!! Input buffer overflow!");
 	  }
 
 	  // just another char... we don't care ^.^
@@ -215,6 +218,7 @@ inline void timeoutProtection()
 {
      if (--nTimeoutCounter == 0)
      {
+	  dbgPrintln("WARNING! Packet timeout!");
 	  recFinished();
      }
 }
@@ -271,7 +275,6 @@ int sendData(void )
 	  for (; idx < CHECKSUM_SIZE; idx++)
 	       serBus.print(cs.arr[idx], BYTE);
 	  
-	  dbgPrintln("Succesfully outputted:");
 	  dbgPacket(&sOutput, cs.checksum);
 
 	  if (! bWaitForResponse)
@@ -281,6 +284,7 @@ int sendData(void )
 
 int recFinished(void)
 {
+     dbgPrintln("Clearing recording buffer");
      bBusBusy = false;
      nChecksum = 0;
      nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
@@ -299,11 +303,18 @@ int recvWelcome(void)
 {
      if (bWaitForResponse && sInput.header.m_nPacketID == nLastPacketID)
      {
+	  dbgPrintln("Valid WELCOME packet");
 	  nMasterID = sInput.header.m_nSourceDeviceID;
 	  nNetworkID = sInput.header.m_nDestinationNetwork;
 
+	  dbgPrintln("Now joined bus (%d) with master (%d)", sInput.header.m_nSourceNetwork, sInput.header.m_nSourceDeviceID);
+
 	  // we got our network \o/
 	  sendFinished();
+     }
+     else
+     {
+	  dbgPrintln("Invalid WELCOME packet... ignoring!");
      }
 }
 
@@ -311,6 +322,7 @@ int sendWelcome(void)
 {
      if (! bOutputReady)
      {
+	  dbgPrintln("Perparing WELCOME packet");
 	  // set welcome type
 	  sOutput.header.m_nPacketLength = OCTRL_WELCOME;
 	  
@@ -336,6 +348,8 @@ int sendHello(void)
 {
      if (! bOutputReady)
      {
+	  dbgPrintln("Preparing HELLO packet");
+
 	  // send HELLO packet to bus se we can identify ourselfs
 	  sOutput.header.m_nPacketLength = OCTRL_HELLO;
 	  
@@ -362,6 +376,7 @@ int sendPong(void)
 {
      if (! bOutputReady)
      {
+	  dbgPrintln("Preparing PONG packet");
 	  // send PONG packet to bus
 	  sOutput.header.m_nPacketLength = OCTRL_PONG;
 	  

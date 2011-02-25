@@ -35,7 +35,7 @@ AVRDUDE_ARD_PROGRAMMER = arduino
 # DON'T SET ANY BITRATE FOR THE NEW MEGA'S OR UNO'S
 # - pro mini = 57600
 # more to follow
-AVRDUDE_ARD_BAUDRATE   = 115200
+#AVRDUDE_ARD_BAUDRATE   = 115200
 
 # The actual make file
 include Arduino.mk
