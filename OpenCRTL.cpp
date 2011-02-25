@@ -96,7 +96,7 @@ void dbgPacket(SPacket *packet, uint16 _checksum = 0)
 #define dbgPrint(...)
 #endif
 
-NewSoftSerial serBus(2, 3);
+NewSoftSerial serBus(3, 4);
 
 void setup(void)
 {
@@ -131,6 +131,10 @@ void initOpenCTRL()
 {
 // TODO only when device is not set master!!! If is set master start initial ping to all nods... 
 // BUG How does the device know when it's newly added to the BUS or it sufferd from power loss, not all MCU's have Brown Out Register
+#ifdef MAX485_PIN
+     pinMode(MAX485_PIN, OUTPUT);
+#endif
+
      if (isMaster()) // TODO check master pin
 	  return; // scanNetwork()
      else
@@ -264,6 +268,10 @@ int sendData(void )
 	  uint8 *ptrOutputBuffer = (uint8 *)&sOutput; // output buffer start
 	  uint8 *ptrOutputFinished = (ptrOutputBuffer + sizeof(SSerialHeader) + (sOutput.header.m_nPacketLength > SER_MAX_DATA_LENGTH ? 0 : sOutput.header.m_nPacketLength));
 
+#ifdef MAX485_PIN
+	  digitalWrite(MAX485_PIN, HIGH);
+#endif
+
 	  // barf whole buffer to bus...
 	  while (ptrOutputBuffer <= ptrOutputFinished)
 	  {
@@ -276,6 +284,11 @@ int sendData(void )
 	       serBus.print(cs.arr[idx], BYTE);
 	  
 	  dbgPacket(&sOutput, cs.checksum);
+
+#ifdef MAX485_PIN
+	  delay(100);
+	  digitalWrite(MAX485_PIN, LOW);
+#endif
 
 	  if (! bWaitForResponse)
 	       sendFinished();
@@ -340,7 +353,7 @@ int sendWelcome(void)
      }
      else
      {
-	  Serial.println("sendWelcome(): Output buffer already filled!");
+	  dbgPrintln("sendWelcome(): Output buffer already filled!");
      }
 }
 
@@ -368,7 +381,7 @@ int sendHello(void)
      }
      else
      {
-	  Serial.println("sendHello(): Output buffer already filled!");
+	  dbgPrintln("sendHello(): Output buffer already filled!");
      }
 }
 
@@ -390,5 +403,9 @@ int sendPong(void)
 	  sOutput.header.m_nPacketID = sInput.header.m_nPacketID; 
 	  
 	  bOutputReady = true;
+     }
+     else
+     {
+	  dbgPrintln("sendPong(): Output buffer already filled!");
      }
 }

@@ -1,6 +1,6 @@
 #Project Settings
 # Configuration Settings
-DEFINES = -DSERIAL_DEBUG -DMAX_RS485 -DSER_DEVICE_TYPE=SLAVE -DDEVICE_ID=1
+DEFINES = -DSERIAL_DEBUG -DSER_DEVICE_TYPE=SLAVE -DDEVICE_ID=1 -DMAX485_PIN=2
 
 #Generic settings!
 # The arduino directories

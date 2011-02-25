@@ -1,6 +1,6 @@
 #Project Settings
 # Configuration Settings
-DEFINES = -DSER_DEVICE_TYPE=MASTER -DDEVICE_ID=222 -DSERIAL_DEBUG
+DEFINES = -DSER_DEVICE_TYPE=MASTER -DDEVICE_ID=222 -DSERIAL_DEBUG -DMAX_485PIN=2
 
 #Generic settings!
 # The arduino directories
