@@ -94,6 +94,7 @@ void dbgPacket(SPacket *packet, uint16 _checksum = 0)
 #define dbgBaudrate(x)
 #define dbgPrintln(...)
 #define dbgPrint(...)
+#define dbgPacket(...)
 #endif
 
 NewSoftSerial serBus(3, 4);
