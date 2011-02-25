@@ -83,7 +83,7 @@ void dbgPacket(SPacket *packet, uint16 _checksum = 0)
 	  dbgPrintln("Data length: %d", packet->header.m_nPacketLength);
 
      register char data = 0;
-     for (; data < packet->header.m_nPacketLength; data++)
+     for (; data < (packet->header.m_nPacketLength > SER_MAX_DATA_LENGTH ? 0 : packet->header.m_nPacketLength); data++)
 	  dbgPrint("%d ", packet->data[data]);
 
      dbgPrintln("---------------------------------- \n");
