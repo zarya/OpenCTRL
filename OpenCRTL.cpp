@@ -16,6 +16,7 @@
 #endif
 
 #define isChecksumValid() (*((uint16*)ptrChecksumStart) == nChecksum)
+#define getChecksum() *((uint16*)ptrChecksumStart)
 
 #define isMaster() (SER_DEVICE_TYPE == MASTER)
 #define isDevice() (SER_DEVICE_TYPE == SLAVE)
@@ -97,7 +98,11 @@ void dbgPacket(SPacket *packet, uint16 _checksum = 0)
 #define dbgPacket(...)
 #endif
 
+#if defined(__AVR_ATmega2560__)
+#define serBus Serial1
+#else
 NewSoftSerial serBus(3, 4);
+#endif
 
 void setup(void)
 {
@@ -152,7 +157,7 @@ void readSerial()
 	  // bits... go parse!
 	  *ptrInputBuffer++ = nLastChar = (char)serBus.read();
 
-	  dbgPrintln("Read char: %u1 - %c1", nLastChar);
+	  dbgPrintln("Read char: %u - %c", nLastChar, nLastChar);
 
 	  if (ptrInputBuffer < ptrChecksumStart) // only add non checksum to checksum ;)
 	       nChecksum += nLastChar;
@@ -167,6 +172,7 @@ void readSerial()
 	  }
 	  else if (ptrInputBuffer == ptrInputFinished) // we got the whole packet let's parse
 	  {
+	       dbgPrintln("Checksum should be: %d", getChecksum());
 	       dbgPacket(&sInput);
 
 	       if (!bInvalidPacket)
@@ -260,10 +266,10 @@ int sendData(void )
 
 	  // if bus full don't send yet and just return and keep buffers
 	  // else we can send the data
- 	  register uint8 idx = 0;
-	  union _checksum {
-	       uint16 checksum;
-	       uint8 arr[CHECKSUM_SIZE];
+	  union _checksum
+	  {
+	    uint16 checksum;
+	    uint8 arr[CHECKSUM_SIZE];
 	  } cs;
 
 	  uint8 *ptrOutputBuffer = (uint8 *)&sOutput; // output buffer start
@@ -281,8 +287,15 @@ int sendData(void )
 	  }
 	  
 	  // write checksum to bus
-	  for (; idx < CHECKSUM_SIZE; idx++)
+#if 0
+ 	  register uint8 idx = 0; // endian problem?
+	  for (; idx < CHECKSUM_SIZE - 1; idx++)
 	       serBus.print(cs.arr[idx], BYTE);
+#else
+	  register uint8 idx = CHECKSUM_SIZE - 1;
+	  for (; idx > 0; idx--)
+	       serBus.print(cs.arr[idx], BYTE);
+#endif
 	  
 	  dbgPacket(&sOutput, cs.checksum);
 
