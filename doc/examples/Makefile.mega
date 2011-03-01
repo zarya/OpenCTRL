@@ -1,0 +1,41 @@
+#Project Settings
+# Configuration Settings
+DEFINES = -DSER_DEVICE_TYPE=MASTER -DDEVICE_ID=222 -DSERIAL_DEBUG -DMAX_485PIN=2
+
+#Generic settings!
+# The arduino directories
+ARDUINO_DIR=/usr/share/arduino
+ARDUINO_LIB_PATH  = $(ARDUINO_DIR)/libraries
+ARDUINO_CORE_PATH = $(ARDUINO_DIR)/hardware/arduino/cores/arduino
+
+# The chip type:
+# atmega328p > Uno
+# atmega2560 > Mega
+# atmega168 > Pro
+MCU=atmega2560
+
+# Project name
+TARGET=OpenCRTLClient
+
+# Used libraries. BUG: Now only one is allowed (more will make compile errors)
+ARDUINO_LIBS=NewSoftSerial
+
+# Arduino CPU Speed
+F_CPU=16000000
+
+# Port where we can find the arduino (Normaly ttyACM* or ttyUSB*)
+ARDUINO_PORT=/dev/ttyACM0
+
+#Flash Settings
+# What programmer to use:
+# - mega, uno = stk500v2
+AVRDUDE_ARD_PROGRAMMER = stk500v2
+
+# This can be a bitch.. newer devices have faster baudrate
+# DON'T SET ANY BITRATE FOR THE NEW MEGA'S OR UNO'S
+# - pro mini = 57600
+# more to follow
+#AVRDUDE_ARD_BAUDRATE   = 115200
+
+# The actual make file
+include Arduino.mk
