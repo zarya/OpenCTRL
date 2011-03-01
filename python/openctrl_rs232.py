@@ -54,7 +54,7 @@ class Bus(object):
 
     def send_ping(self,dst):
         self.packet.src = [1,1]
-        self.packet.dst = [0,dst]
+        self.packet.dst = [1,dst]
         self.packet.id = 1 
         self.packet.len = 255
         self.packet.type = 255
@@ -127,6 +127,8 @@ while bla == 1:
         ser.flushInput()
         time.sleep(2)
         bus.send_welcome(packet)
+        time.sleep(2)
+        bus.send_ping(5)
     
     #wait for return data
     

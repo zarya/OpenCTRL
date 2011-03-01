@@ -131,6 +131,7 @@ void initSerial()
 {
      serBus.begin(9600);
      ptrInputBuffer = (uint8 *)&sInput;
+     ptrChecksumStart = &sInput.data[SER_MAX_DATA_LENGTH - 1];
 }
 
 void initOpenCTRL()
@@ -193,6 +194,8 @@ void readSerial()
 				   recFinished(); // data handled clear buffers
 			      }
 			 }
+			 else
+			   dbgPrintln("Checksum didn't match!");
 		    }
 		    else
 		    {
@@ -332,7 +335,7 @@ int recvWelcome(void)
      {
 	  dbgPrintln("Valid WELCOME packet");
 	  nMasterID = sInput.header.m_nSourceDeviceID;
-	  nNetworkID = sInput.header.m_nDestinationNetwork;
+	  nNetworkID = sInput.header.m_nSourceNetwork;
 
 	  dbgPrintln("Now joined bus (%d) with master (%d)", sInput.header.m_nSourceNetwork, sInput.header.m_nSourceDeviceID);
 
