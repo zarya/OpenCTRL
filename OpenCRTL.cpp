@@ -335,7 +335,7 @@ int recvWelcome(void)
      {
 	  dbgPrintln("Valid WELCOME packet");
 	  nMasterID = sInput.header.m_nSourceDeviceID;
-	  nNetworkID = sInput.header.m_nDestinationNetwork;
+	  nNetworkID = sInput.header.m_nSourceNetwork;
 
 	  dbgPrintln("Now joined bus (%d) with master (%d)", sInput.header.m_nSourceNetwork, sInput.header.m_nSourceDeviceID);
 
