@@ -266,14 +266,10 @@ int sendData(void )
 
 	  // if bus full don't send yet and just return and keep buffers
 	  // else we can send the data
-	  union _checksum
-	  {
-	    uint16 checksum;
-	    uint8 arr[CHECKSUM_SIZE];
-	  } cs;
-
 	  uint8 *ptrOutputBuffer = (uint8 *)&sOutput; // output buffer start
 	  uint8 *ptrOutputFinished = (ptrOutputBuffer + sizeof(SSerialHeader) + (sOutput.header.m_nPacketLength > SER_MAX_DATA_LENGTH ? 0 : sOutput.header.m_nPacketLength));
+	  uint16 *ptrChecksum = (uint16 *)ptrOutputFinished;
+	  uint16 *ptrChecksumFinished = (uint16 *)(ptrOutputFinished + 2); // got 16 bit checksum...
 
 #ifdef MAX485_PIN
 	  digitalWrite(MAX485_PIN, HIGH);
@@ -282,22 +278,25 @@ int sendData(void )
 	  // barf whole buffer to bus...
 	  while (ptrOutputBuffer <= ptrOutputFinished)
 	  {
-	       cs.checksum += *ptrOutputBuffer;
+	       *ptrChecksum += *ptrOutputBuffer;
 	       serBus.print(*ptrOutputBuffer++, BYTE);
 	  }
 	  
 	  // write checksum to bus
-#if 0
- 	  register uint8 idx = 0; // endian problem?
-	  for (; idx < CHECKSUM_SIZE - 1; idx++)
-	       serBus.print(cs.arr[idx], BYTE);
-#else
-	  register uint8 idx = CHECKSUM_SIZE - 1;
-	  for (; idx > 0; idx--)
-	       serBus.print(cs.arr[idx], BYTE);
+#if LITTLE_ENDIAN
+	  while (ptrOutputBuffer <= (uint8 *)ptrChecksumFinished)
+	  {
+	       serBus.print(*ptrOutputBuffer++, BYTE);
+	  }
+#elif BIG_ENDIAN
+	  ptrOutputBuffer = ptrChecksumFinished;
+	  while (ptrOutputBuffer > ptrChecksum)
+	  {
+	       serBus.print(*ptrOutputBuffer--, BYTE);
+	  }
 #endif
 	  
-	  dbgPacket(&sOutput, cs.checksum);
+	  dbgPacket(&sOutput, *ptrChecksum);
 
 #ifdef MAX485_PIN
 	  delay(100);
