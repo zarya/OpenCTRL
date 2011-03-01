@@ -282,10 +282,10 @@ int sendData(void )
 	       *ptrChecksum += *ptrOutputBuffer;
 	       serBus.print(*ptrOutputBuffer++, BYTE);
 	  }
-	  
+	  /*
 	  // write checksum to bus
 #if LITTLE_ENDIAN
-	  while (ptrOutputBuffer <= (uint8 *)ptrChecksumFinished)
+	  while (ptrOutputBuffer < (uint8 *)ptrChecksumFinished)
 	  {
 	       serBus.print(*ptrOutputBuffer++, BYTE);
 	  }
@@ -296,7 +296,7 @@ int sendData(void )
 	       serBus.print(*ptrOutputBuffer--, BYTE);
 	  }
 #endif
-	  
+	  */
 	  dbgPacket(&sOutput, *ptrChecksum);
 
 #ifdef MAX485_PIN
