@@ -131,6 +131,7 @@ void initSerial()
 {
      serBus.begin(9600);
      ptrInputBuffer = (uint8 *)&sInput;
+     ptrChecksumStart = &sInput.data[SER_MAX_DATA_LENGTH - 1];
 }
 
 void initOpenCTRL()
@@ -193,6 +194,8 @@ void readSerial()
 				   recFinished(); // data handled clear buffers
 			      }
 			 }
+			 else
+			   dbgPrintln("Checksum didn't match!");
 		    }
 		    else
 		    {
