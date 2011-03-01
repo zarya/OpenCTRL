@@ -277,7 +277,7 @@ int sendData(void )
 #endif
 
 	  // barf whole buffer to bus...
-	  while (ptrOutputBuffer <= ptrOutputFinished)
+	  while (ptrOutputBuffer < ptrOutputFinished)
 	  {
 	       *ptrChecksum += *ptrOutputBuffer;
 	       serBus.print(*ptrOutputBuffer++, BYTE);
