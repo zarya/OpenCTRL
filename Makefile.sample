@@ -1,6 +1,8 @@
 #Project Settings
 # Configuration Settings
-DEFINES = -DSERIAL_DEBUG -DMAX_RS485 -DSER_DEVICE_TYPE=SLAVE -DDEVICE_ID=1 -DLITTLE_ENDIAN
+DEFINES = -DSERIAL_DEBUG -DMAX_RS485 -DSER_DEVICE_TYPE=SLAVE -DDEVICE_ID=1
+# available macro variables:
+# - BIG_ENDIAN
 
 #Generic settings!
 # The arduino directories
