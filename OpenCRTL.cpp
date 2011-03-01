@@ -392,7 +392,7 @@ int sendHello(void)
 	  bWaitForResponse = true;
 	  // set the buffer filled flag so sendData will be called later on... why w8? First we need to monitor to check if the bus is free! =)
      }
-p     else
+     else
      {
 	  dbgPrintln("sendHello(): Output buffer already filled!");
      }
