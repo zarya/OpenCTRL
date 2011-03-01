@@ -289,8 +289,8 @@ int sendData(void )
 	       serBus.print(*ptrOutputBuffer++, BYTE);
 	  }
 #elif BIG_ENDIAN
-	  ptrOutputBuffer = ptrChecksumFinished;
-	  while (ptrOutputBuffer > ptrChecksum)
+	  ptrOutputBuffer = (uint8 *)ptrChecksumFinished;
+	  while (ptrOutputBuffer > (uint8 *)ptrChecksum)
 	  {
 	       serBus.print(*ptrOutputBuffer--, BYTE);
 	  }
@@ -392,7 +392,7 @@ int sendHello(void)
 	  bWaitForResponse = true;
 	  // set the buffer filled flag so sendData will be called later on... why w8? First we need to monitor to check if the bus is free! =)
      }
-     else
+p     else
      {
 	  dbgPrintln("sendHello(): Output buffer already filled!");
      }
