@@ -270,6 +270,7 @@ int sendData(void )
 	  uint8 *ptrOutputFinished = (ptrOutputBuffer + sizeof(SSerialHeader) + (sOutput.header.m_nPacketLength > SER_MAX_DATA_LENGTH ? 0 : sOutput.header.m_nPacketLength));
 	  uint16 *ptrChecksum = (uint16 *)ptrOutputFinished;
 	  uint16 *ptrChecksumFinished = (uint16 *)(ptrOutputFinished + 2); // got 16 bit checksum...
+	  *ptrChecksum = 0; // initialize @ 0
 
 #ifdef MAX485_PIN
 	  digitalWrite(MAX485_PIN, HIGH);
