@@ -284,16 +284,16 @@ int sendData(void )
 	  }
 	  
 	  // write checksum to bus
-#if LITTLE_ENDIAN
-	  while (ptrOutputBuffer < (uint8 *)ptrChecksumFinished)
-	  {
-	       serBus.print(*ptrOutputBuffer++, BYTE);
-	  }
-#elif BIG_ENDIAN
+#if BIG_ENDIAN
 	  ptrOutputBuffer = (uint8 *)ptrChecksumFinished;
 	  while (ptrOutputBuffer > (uint8 *)ptrChecksum)
 	  {
 	       serBus.print(*ptrOutputBuffer--, BYTE);
+	  }
+#else
+	  while (ptrOutputBuffer < (uint8 *)ptrChecksumFinished)
+	  {
+	       serBus.print(*ptrOutputBuffer++, BYTE);
 	  }
 #endif
 
