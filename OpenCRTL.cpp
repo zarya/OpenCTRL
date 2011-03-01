@@ -1,16 +1,31 @@
 #include "WProgram.h"
+#include <string.h>
+#include <stdarg.h>
 #include <NewSoftSerial.h>
 #include "OpenCRTL.h"
 
-#define isChecksumValid() (*((uint16*)ptrChecksumStart) == nChecksum)
+#define MASTER 1
+#define SLAVE 2
 
-NewSoftSerial serBus(3, 4);
+#if SER_DEVICE_TYPE != MASTER && SER_DEVICE_TYPE != SLAVE
+#error Device type must be MASTER or SLAVE
+#endif
+
+#if DEVICE_ID <= 0 || DEVICE_ID > 255
+#error Device ID must be between 1 and 255
+#endif
+
+#define isChecksumValid() (*((uint16*)ptrChecksumStart) == nChecksum)
+#define getChecksum() *((uint16*)ptrChecksumStart)
+
+#define isMaster() (SER_DEVICE_TYPE == MASTER)
+#define isDevice() (SER_DEVICE_TYPE == SLAVE)
 
 // generic bus status
 bool bBusBusy = false; // set when input occures or we are ouputting
-uint8 nNetworkID = 0;
-uint8 nDeviceID = 0;
-uint8 nMasterID = 0;
+uint8 nNetworkID = isMaster() ? DEVICE_ID : 0;
+uint8 nDeviceID = DEVICE_ID;
+uint8 nMasterID = isMaster() ? DEVICE_ID : 0;
 
 // serial input variables (buffers and indexes)
 SPacket sInput;
@@ -29,14 +44,73 @@ uint8 nLastPacketID = 0; // remember to check if the master recved our 'interrup
 
 int nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 
+#ifdef SERIAL_DEBUG
+#define DBG_BUFFERSIZE 128
+static char writeBuffer[DBG_BUFFERSIZE]; // debug write buffer
+
+void dbgPrintln(char *str, ...)
+{
+     va_list va;
+     va_start(va, str);
+     vsnprintf(writeBuffer, DBG_BUFFERSIZE, str, va);
+
+     Serial.println(writeBuffer);
+}
+
+void dbgPrint(char *str, ...)
+{
+     va_list va;
+     va_start(va, str);
+     vsnprintf(writeBuffer, DBG_BUFFERSIZE, str, va);
+     
+     Serial.print(writeBuffer);
+}
+
+// default is received packet: dbgPacket(&sInput) if you want to print output: dbgPacket(&sOutput, false)
+void dbgPacket(SPacket *packet, uint16 _checksum = 0)
+{
+     dbgPrintln("%s (%d.%d) -> (%d.%d)", 
+		_checksum == 0 ? "INPUT" : "OUTPUT",
+		packet->header.m_nSourceNetwork,
+		packet->header.m_nSourceDeviceID,
+		packet->header.m_nDestinationNetwork,
+		packet->header.m_nDestinationDevice );
+     dbgPrintln("Packet ID: %d", packet->header.m_nPacketID);
+     dbgPrintln("Checksum: (%d) %s", (_checksum > 0 ? _checksum : nChecksum), (_checksum ? "" : (isChecksumValid() ? "valid" : "INVALID")));
+     
+     if (packet->header.m_nPacketLength > SER_MAX_DATA_LENGTH)
+	  dbgPrintln("Protocol code: %d", packet->header.m_nPacketLength);
+     else
+	  dbgPrintln("Data length: %d", packet->header.m_nPacketLength);
+
+     register char data = 0;
+     for (; data < (packet->header.m_nPacketLength > SER_MAX_DATA_LENGTH ? 0 : packet->header.m_nPacketLength); data++)
+	  dbgPrint("%d ", packet->data[data]);
+
+     dbgPrintln("---------------------------------- \n");
+}
+
+#define dbgBaudrate Serial.begin
+#else
+#define dbgBaudrate(x)
+#define dbgPrintln(...)
+#define dbgPrint(...)
+#define dbgPacket(...)
+#endif
+
+#if defined(__AVR_ATmega2560__)
+#define serBus Serial1
+#else
+NewSoftSerial serBus(3, 4);
+#endif
+
 void setup(void)
 {
-     Serial.begin(9600);
-     Serial.println("Loading OpenCTRL Client...");
-     Serial.println("Starting soft serial interface");
+     dbgBaudrate(57600);
+     dbgPrintln("Loading OpenCTRL...");
      initSerial();
-     Serial.println("Starting OpenCTRL interface (over soft serial)");
      initOpenCTRL();
+     dbgPrintln("Running as (%s) with Device ID (%d) and Network ID (%d)", isMaster() ? "MASTER" : "SLAVE", nDeviceID, nNetworkID);
 
      // only for startup use delay and start to make sure the bus is empty before trying to send
      delay(500);
@@ -50,6 +124,7 @@ void loop(void)                     // run over and over again
      // main loop
      sendData();
      delay(SERIAL_WAIT_TIME);
+     readSerial();
 }
 
 void initSerial()
@@ -60,11 +135,13 @@ void initSerial()
 
 void initOpenCTRL()
 {
-     if (RS485 > 0)
-          pinMode(RS485,OUTPUT);
 // TODO only when device is not set master!!! If is set master start initial ping to all nods... 
 // BUG How does the device know when it's newly added to the BUS or it sufferd from power loss, not all MCU's have Brown Out Register
-     if (false) // TODO check master pin
+#ifdef MAX485_PIN
+     pinMode(MAX485_PIN, OUTPUT);
+#endif
+
+     if (isMaster()) // TODO check master pin
 	  return; // scanNetwork()
      else
 	  sendHello();
@@ -72,13 +149,15 @@ void initOpenCTRL()
 
 void readSerial()
 {
-     if (serBus.available())
+     while (serBus.available())
      {
 	  nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 	  bBusBusy = true;
 	  
 	  // bits... go parse!
 	  *ptrInputBuffer++ = nLastChar = (char)serBus.read();
+
+	  dbgPrintln("Read char: %u - %c", nLastChar, nLastChar);
 
 	  if (ptrInputBuffer < ptrChecksumStart) // only add non checksum to checksum ;)
 	       nChecksum += nLastChar;
@@ -93,6 +172,9 @@ void readSerial()
 	  }
 	  else if (ptrInputBuffer == ptrInputFinished) // we got the whole packet let's parse
 	  {
+	       dbgPrintln("Checksum should be: %d", getChecksum());
+	       dbgPacket(&sInput);
+
 	       if (!bInvalidPacket)
 	       {
 		    // we got the whole packet! Check if we have anything to do with it...
@@ -116,12 +198,14 @@ void readSerial()
 		    {
 			 // we got nothing to do with it reset buffer for new packet
 			 recFinished();
+			 dbgPrintln("Packet not for us, ignoring...");
 		    }
 	       }
 	       else
 	       {
 		    // invalid packet reset buffers
 		    recFinished();
+		    dbgPrintln("Invalid packet! To bad!");
 	       }
 	  }
 	  else if (ptrInputBuffer == &sInput.data[SER_MAX_DATA_LENGTH])
@@ -129,11 +213,13 @@ void readSerial()
 	       // packet longer then RFC mark invalid and reset pointer to prefent buffer overflow ;)
 	       ptrInputBuffer = &sInput.data[0]; // overwrite previous data invalid anywayzz
 	       bInvalidPacket = true;
+	       dbgPrintln("WARNING!! Input buffer overflow!");
 	  }
 
 	  // just another char... we don't care ^.^
      }
-     else if (bBusBusy) // bus is busy but we didn't recieve any data 
+     
+     if (bBusBusy) // bus is busy but we didn't recieve any data 
      {
 	  timeoutProtection();
      }
@@ -143,6 +229,7 @@ inline void timeoutProtection()
 {
      if (--nTimeoutCounter == 0)
      {
+	  dbgPrintln("WARNING! Packet timeout!");
 	  recFinished();
      }
 }
@@ -175,38 +262,48 @@ int sendData(void )
 {
      if (!bBusBusy && bOutputReady)
      {
+	  dbgPrintln("Trying to send data!");
+
 	  // if bus full don't send yet and just return and keep buffers
 	  // else we can send the data
- 	  register uint8 idx = 0;
-	  union _checksum {
-	       uint16 checksum;
-	       uint8 arr[CHECKSUM_SIZE];
-	  } cs;
-
 	  uint8 *ptrOutputBuffer = (uint8 *)&sOutput; // output buffer start
 	  uint8 *ptrOutputFinished = (ptrOutputBuffer + sizeof(SSerialHeader) + (sOutput.header.m_nPacketLength > SER_MAX_DATA_LENGTH ? 0 : sOutput.header.m_nPacketLength));
+	  uint16 *ptrChecksum = (uint16 *)ptrOutputFinished;
+	  uint16 *ptrChecksumFinished = (uint16 *)(ptrOutputFinished + 2); // got 16 bit checksum...
+	  *ptrChecksum = 0; // initialize @ 0
 
-      if (RS485 > 0)
-           digitalWrite(RS485,HIGH);
+#ifdef MAX485_PIN
+	  digitalWrite(MAX485_PIN, HIGH);
+#endif
 
 	  // barf whole buffer to bus...
-      int _char;
-	  while (ptrOutputBuffer <= ptrOutputFinished)
+	  while (ptrOutputBuffer < ptrOutputFinished)
 	  {
-	       cs.checksum += *ptrOutputBuffer;
+	       *ptrChecksum += *ptrOutputBuffer;
 	       serBus.print(*ptrOutputBuffer++, BYTE);
 	  }
 	  
 	  // write checksum to bus
-	  for (; idx < CHECKSUM_SIZE; idx++)
-	       serBus.print(cs.arr[idx], BYTE);
+#if BIG_ENDIAN
+	  ptrOutputBuffer = (uint8 *)ptrChecksumFinished;
+	  while (ptrOutputBuffer > (uint8 *)ptrChecksum)
+	  {
+	       serBus.print(*ptrOutputBuffer--, BYTE);
+	  }
+#else
+	  while (ptrOutputBuffer < (uint8 *)ptrChecksumFinished)
+	  {
+	       serBus.print(*ptrOutputBuffer++, BYTE);
+	  }
+#endif
 
-      if (RS485 > 0)
-      {
-           delay(100);
-           digitalWrite(RS485,LOW);
-      }
-	  
+	  dbgPacket(&sOutput, *ptrChecksum);
+
+#ifdef MAX485_PIN
+	  delay(100);
+	  digitalWrite(MAX485_PIN, LOW);
+#endif
+
 	  if (! bWaitForResponse)
 	       sendFinished();
      }
@@ -214,6 +311,7 @@ int sendData(void )
 
 int recFinished(void)
 {
+     dbgPrintln("Clearing recording buffer");
      bBusBusy = false;
      nChecksum = 0;
      nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
@@ -232,14 +330,18 @@ int recvWelcome(void)
 {
      if (bWaitForResponse && sInput.header.m_nPacketID == nLastPacketID)
      {
+	  dbgPrintln("Valid WELCOME packet");
 	  nMasterID = sInput.header.m_nSourceDeviceID;
 	  nNetworkID = sInput.header.m_nDestinationNetwork;
-      Serial.print("Network:");
-      Serial.println(nNetworkID);
-      
+
+	  dbgPrintln("Now joined bus (%d) with master (%d)", sInput.header.m_nSourceNetwork, sInput.header.m_nSourceDeviceID);
 
 	  // we got our network \o/
 	  sendFinished();
+     }
+     else
+     {
+	  dbgPrintln("Invalid WELCOME packet... ignoring!");
      }
 }
 
@@ -247,6 +349,7 @@ int sendWelcome(void)
 {
      if (! bOutputReady)
      {
+	  dbgPrintln("Perparing WELCOME packet");
 	  // set welcome type
 	  sOutput.header.m_nPacketLength = OCTRL_WELCOME;
 	  
@@ -264,7 +367,7 @@ int sendWelcome(void)
      }
      else
      {
-	  Serial.println("sendWelcome(): Output buffer already filled!");
+	  dbgPrintln("sendWelcome(): Output buffer already filled!");
      }
 }
 
@@ -272,6 +375,8 @@ int sendHello(void)
 {
      if (! bOutputReady)
      {
+	  dbgPrintln("Preparing HELLO packet");
+
 	  // send HELLO packet to bus se we can identify ourselfs
 	  sOutput.header.m_nPacketLength = OCTRL_HELLO;
 	  
@@ -290,7 +395,7 @@ int sendHello(void)
      }
      else
      {
-	  Serial.println("sendHello(): Output buffer already filled!");
+	  dbgPrintln("sendHello(): Output buffer already filled!");
      }
 }
 
@@ -298,6 +403,7 @@ int sendPong(void)
 {
      if (! bOutputReady)
      {
+	  dbgPrintln("Preparing PONG packet");
 	  // send PONG packet to bus
 	  sOutput.header.m_nPacketLength = OCTRL_PONG;
 	  
@@ -311,5 +417,9 @@ int sendPong(void)
 	  sOutput.header.m_nPacketID = sInput.header.m_nPacketID; 
 	  
 	  bOutputReady = true;
+     }
+     else
+     {
+	  dbgPrintln("sendPong(): Output buffer already filled!");
      }
 }

@@ -1,6 +1,8 @@
 #Project Settings
 # Configuration Settings
-DEFINES = -DSERIAL_DEBUG -DMAX_RS485
+DEFINES = -DSERIAL_DEBUG -DMAX_RS485 -DSER_DEVICE_TYPE=SLAVE -DDEVICE_ID=1
+# available macro variables:
+# - BIG_ENDIAN
 
 #Generic settings!
 # The arduino directories
@@ -15,7 +17,7 @@ ARDUINO_CORE_PATH = $(ARDUINO_DIR)/hardware/arduino/cores/arduino
 MCU=atmega328p
 
 # Project name
-TARGET=OpenCRTLClient
+TARGET=OpenCRTL
 
 # Used libraries. BUG: Now only one is allowed (more will make compile errors)
 ARDUINO_LIBS=NewSoftSerial
@@ -24,16 +26,18 @@ ARDUINO_LIBS=NewSoftSerial
 F_CPU=16000000
 
 # Port where we can find the arduino (Normaly ttyACM* or ttyUSB*)
-ARDUINO_PORT=/dev/ttyACM0
+ARDUINO_PORT=/dev/ttyACM1
 
 #Flash Settings
-# What programmer to use should be fine(?)
-AVRDUDE_ARD_PROGRAMMER = stk500v1
+# What programmer to use:
+# - mega, uno = stk500v2
+AVRDUDE_ARD_PROGRAMMER = stk500v2
 
 # This can be a bitch.. newer devices have faster baudrate
+# DON'T SET ANY BITRATE FOR THE NEW MEGA'S OR UNO'S
 # - pro mini = 57600
 # more to follow
-AVRDUDE_ARD_BAUDRATE   = 19200
+#AVRDUDE_ARD_BAUDRATE   = 115200
 
 # The actual make file
 include Arduino.mk

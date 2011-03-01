@@ -11,10 +11,13 @@ typedef unsigned long long uint64;
 #define true 1
 #define false 0
 
-#define RS485 2
+#define MAX485_PIN 2
+#define SER_DEVICE_TYPE SLAVE 
+#define DEVICE_ID 5
+#define LITTLE_ENDIAN 1
 
 #define SERIAL_TIMEOUT_LIMIT 1000 // 1000 loop cycles is timeout
-#define SERIAL_WAIT_TIME 32000000 // 32000000 cycles == more then 2 seconds
+#define SERIAL_WAIT_TIME 20000
 
 // packet specs
 #define SER_HEADER_LENGTH 6

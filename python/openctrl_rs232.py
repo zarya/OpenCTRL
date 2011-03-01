@@ -1,6 +1,7 @@
 import serial
 import socket
 import time
+import struct
 
 def checksum(data):
     checksum = 0
@@ -11,7 +12,7 @@ def checksum(data):
         except:
             checksum = checksum + data[i]
         i += 1
-    return [((checksum>>8)&255),((checksum)& 255)]
+    return [((checksum)& 255),((checksum>>8)&255)]
 
 class Packet(object):
     def __init__(self):
@@ -29,7 +30,7 @@ class Packet(object):
             self.checksum_data = checksum("%s%s"%(''.join(map(chr,[self.src[0],self.src[1],self.dst[0],self.dst[1],self.id,self.type])),''.join(self.data)))
         else:
             self.checksum_data = checksum("%s%s"%(''.join(map(chr,[self.src[0],self.src[1],self.dst[0],self.dst[1],self.id,self.len])),''.join(self.data)))
-        if chr(self.checksum_data[0]) == self.checksum[0] and chr(self.checksum_data[1]) == self.checksum[1]:
+        if self.checksum_data[0] == self.checksum[0] and self.checksum_data[1] == self.checksum[1]:
             return 1
         else:
             return 0
@@ -63,6 +64,7 @@ class Bus(object):
     def send_packet(self):
         self.ser.write("%s%s%s" % (''.join(map(chr,[self.packet.src[0],self.packet.src[1],self.packet.dst[0],self.packet.dst[1],self.packet.id,self.packet.len])),''.join(map(chr,self.packet.data)),''.join(map(chr,self.packet.checksum))))
         print "Sending back data:"
+        print("%s%s%s" % (''.join(map(chr,[self.packet.src[0],self.packet.src[1],self.packet.dst[0],self.packet.dst[1],self.packet.id,self.packet.len])),''.join(map(chr,self.packet.data)),''.join(map(chr,self.packet.checksum))))
 
 bla = 1
 ser = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
@@ -86,15 +88,18 @@ while bla == 1:
     if packet.len > 32:
         packet.type = packet.len
         packet.len = 0
-        packet.data.append(ser.read(1)) # Read null data byte
     else:
         while (buffert != packet.len):
             buffert=buffert+1
             packet.data.append(ser.read(1)) # add the recieved data to the packet
-    packet.checksum = [ser.read(1),ser.read(1)] #recieve the packet checksum
+
+    packet.checksum = []
+    packet.checksum.append(ord(ser.read(1)))
+    packet.checksum.append(ord(ser.read(1))) #read checksum from the bus
+
     print "Packet data: %s" % ''.join(packet.data)
     #Check if the checksum is ok
-    if packet.check_checksum(): 
+    if packet.check_checksum() == 1: 
         print "Packet Checksum: valid"
     else:
         print "Packet Checksum: invalid"
@@ -102,7 +107,9 @@ while bla == 1:
         packet = object
         packet = Packet()
         continue
-    print "Checksum: %s%s %s%s" % (ord(packet.checksum[0]),ord(packet.checksum[1]),packet.checksum_data[0],packet.checksum_data[1])
+
+    print "Checksum: input: %s %s Output: %s %s" % (packet.checksum[0],packet.checksum[1],packet.checksum_data[0],packet.checksum_data[1])
+
     #Packet data
     print "Packet len: %s" % packet.len
     print "Packet Type: %s" % packet.type
@@ -120,9 +127,6 @@ while bla == 1:
         ser.flushInput()
         time.sleep(2)
         bus.send_welcome(packet)
-        ser.flush()
-        time.sleep(2)
-        bus.send_ping(packet.src[1])
     
     #wait for return data
     
