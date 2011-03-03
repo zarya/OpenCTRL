@@ -10,7 +10,7 @@ def receiving(ser):
     global sending 
     packet = Packet() #Start packet class
     while True:
-        if ser.inWaiting() == 0 && sending == False:
+        if ser.inWaiting() == 0 and sending == True:
             continue
         #Recieve data from application master
         buffert = 0
