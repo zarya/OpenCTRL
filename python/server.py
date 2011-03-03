@@ -9,16 +9,17 @@ from libs.openctrl_rs232 import Bus
 def receiving(ser):
     global sending 
     packet = Packet() #Start packet class
+    bus = Bus(ser) #Start bus class
     while True:
         if ser.inWaiting() == 0 and sending == True:
             continue
         #Recieve data from application master
         buffert = 0
         try:
-            packet.src = [ord(ser.read(1)),ord(ser.read(1))]    #recieve source address
-            packet.dst = [ord(ser.read(1)),ord(ser.read(1))]    #recieve destination address
-            packet.id = ord(ser.read(1))                        #recieve packet id
-            packet.len = ord(ser.read(1))                       #recieve packet len
+            packet.src = [ord(bus.read(1)),ord(bus.read(1))]    #recieve source address
+            packet.dst = [ord(bus.read(1)),ord(bus.read(1))]    #recieve destination address
+            packet.id = ord(bus.read(1))                        #recieve packet id
+            packet.len = ord(bus.read(1))                       #recieve packet len
         except:
             #if some of above fails start all over
             packet = object
@@ -33,11 +34,11 @@ def receiving(ser):
         else:
             while (buffert != packet.len):
                 buffert=buffert+1
-                packet.data.append(ser.read(1)) # add the recieved data to the packet
+                packet.data.append(bus.read(1)) # add the recieved data to the packet
 
         packet.checksum = []
-        packet.checksum.append(ord(ser.read(1)))
-        packet.checksum.append(ord(ser.read(1))) #read checksum from the bus
+        packet.checksum.append(ord(bus.read(1)))
+        packet.checksum.append(ord(bus.read(1))) #read checksum from the bus
 
         print "Packet data: %s" % ''.join(packet.data)
         #Check if the checksum is ok

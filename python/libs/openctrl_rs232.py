@@ -30,9 +30,7 @@ class Bus(object):
 
     def send_packet(self):
         self.ser.write("%s%s%s" % (''.join(map(chr,[self.packet.src[0],self.packet.src[1],self.packet.dst[0],self.packet.dst[1],self.packet.id,self.packet.len])),''.join(map(chr,self.packet.data)),''.join(map(chr,self.packet.checksum))))
-        print "Sending back data:"
-        print("%s%s%s" % (''.join(map(chr,[self.packet.src[0],self.packet.src[1],self.packet.dst[0],self.packet.dst[1],self.packet.id,self.packet.len])),''.join(map(chr,self.packet.data)),''.join(map(chr,self.packet.checksum))))
 
-    def read_byte(self):
-        return ser.read(1)
+    def read(self,size):
+        return self.ser.read(size)
 
