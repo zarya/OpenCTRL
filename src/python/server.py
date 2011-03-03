@@ -10,6 +10,8 @@ from libs.openctrl_rs232 import Bus
 from libs.console import Console
 
 class Receiver(Thread):
+    daemon = True # Start background thread
+    
     def __init__(self, ser):
         super(Receiver, self).__init__()
         self.ser = ser
