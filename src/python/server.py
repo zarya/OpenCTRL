@@ -87,7 +87,7 @@ if __name__ ==  '__main__':
     debug = False
     sending = False
     ser = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
-    rcv = Receiver(args=(ser,)).start()
+    rcv = Receiver(ser).start()
     if len(sys.argv) > 1:
         if sys.argv[1] == "console":
             console = Console(ser)
