@@ -3,3 +3,4 @@
 /src/c/Makefile.mega
 /src/c/bin/
 /src/c/build
+*.pyc
