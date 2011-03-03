@@ -1,6 +1,7 @@
 import os
 import cmd
 import readline
+import sys
 from openctrl_rs232 import Bus
 from openctrl import Packet, checksum
 
@@ -19,6 +20,7 @@ class Console(cmd.Cmd):
 
     def do_exit(self, args):
         """Exits from the console"""
+        sys.exit()
         return -1
 
     ## Command definitions to support Cmd object functionality ##
