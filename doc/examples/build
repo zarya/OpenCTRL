@@ -1,4 +1,4 @@
-rm -r build-cli
+rm -r bin
 make -f Makefile.mega upload
-rm -r build-cli
+rm -r bin
 make -f Makefile.uno upload

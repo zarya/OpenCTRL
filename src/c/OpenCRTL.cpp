@@ -1,7 +1,9 @@
 #include "WProgram.h"
-#include <string.h>
-#include <stdarg.h>
 #include <NewSoftSerial.h>
+
+#include "lib/protocol.h"
+#include "lib/debug.h"
+
 #include "OpenCRTL.h"
 
 #define MASTER 1
@@ -17,9 +19,6 @@
 
 #define isChecksumValid() (*((uint16*)ptrChecksumStart) == nChecksum)
 #define getChecksum() *((uint16*)ptrChecksumStart)
-
-#define isMaster() (SER_DEVICE_TYPE == MASTER)
-#define isDevice() (SER_DEVICE_TYPE == SLAVE)
 
 // generic bus status
 bool bBusBusy = false; // set when input occures or we are ouputting
@@ -44,69 +43,9 @@ uint8 nLastPacketID = 0; // remember to check if the master recved our 'interrup
 
 int nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 
-#ifdef SERIAL_DEBUG
-#define DBG_BUFFERSIZE 128
-static char writeBuffer[DBG_BUFFERSIZE]; // debug write buffer
-
-void dbgPrintln(char *str, ...)
-{
-     va_list va;
-     va_start(va, str);
-     vsnprintf(writeBuffer, DBG_BUFFERSIZE, str, va);
-
-     Serial.println(writeBuffer);
-}
-
-void dbgPrint(char *str, ...)
-{
-     va_list va;
-     va_start(va, str);
-     vsnprintf(writeBuffer, DBG_BUFFERSIZE, str, va);
-     
-     Serial.print(writeBuffer);
-}
-
-// default is received packet: dbgPacket(&sInput) if you want to print output: dbgPacket(&sOutput, false)
-void dbgPacket(SPacket *packet, uint16 _checksum = 0)
-{
-     dbgPrintln("%s (%d.%d) -> (%d.%d)", 
-		_checksum == 0 ? "INPUT" : "OUTPUT",
-		packet->header.m_nSourceNetwork,
-		packet->header.m_nSourceDeviceID,
-		packet->header.m_nDestinationNetwork,
-		packet->header.m_nDestinationDevice );
-     dbgPrintln("Packet ID: %d", packet->header.m_nPacketID);
-     dbgPrintln("Checksum: (%d) %s", (_checksum > 0 ? _checksum : nChecksum), (_checksum ? "" : (isChecksumValid() ? "valid" : "INVALID")));
-     
-     if (packet->header.m_nPacketLength > SER_MAX_DATA_LENGTH)
-	  dbgPrintln("Protocol code: %d", packet->header.m_nPacketLength);
-     else
-	  dbgPrintln("Data length: %d", packet->header.m_nPacketLength);
-
-     register char data = 0;
-     for (; data < (packet->header.m_nPacketLength > SER_MAX_DATA_LENGTH ? 0 : packet->header.m_nPacketLength); data++)
-	  dbgPrint("%d ", packet->data[data]);
-
-     dbgPrintln("---------------------------------- \n");
-}
-
-#define dbgBaudrate Serial.begin
-#else
-#define dbgBaudrate(x)
-#define dbgPrintln(...)
-#define dbgPrint(...)
-#define dbgPacket(...)
-#endif
-
-#if defined(__AVR_ATmega2560__)
-#define serBus Serial1
-#else
-NewSoftSerial serBus(3, 4);
-#endif
-
 void setup(void)
 {
-     dbgBaudrate(57600);
+     dbgInitialize();
      dbgPrintln("Loading OpenCTRL...");
      initSerial();
      initOpenCTRL();

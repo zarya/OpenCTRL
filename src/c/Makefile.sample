@@ -1,6 +1,6 @@
 #Project Settings
 # Configuration Settings
-DEFINES = -DSERIAL_DEBUG -DSER_DEVICE_TYPE=SLAVE -DDEVICE_ID=1 -DMAX485_PIN=2
+DEFINES = -DSERIAL_DEBUG -DMAX_RS485 -DSER_DEVICE_TYPE=SLAVE -DDEVICE_ID=1
 # available macro variables:
 # - BIG_ENDIAN
 
@@ -13,11 +13,11 @@ ARDUINO_CORE_PATH = $(ARDUINO_DIR)/hardware/arduino/cores/arduino
 # The chip type:
 # atmega328p > Uno
 # atmega2560 > Mega
-# atmega168 > Pro
+# atmega168 / atmega328 > Pro
 MCU=atmega328p
 
 # Project name
-TARGET=OpenCRTLClient
+TARGET=OpenCRTL
 
 # Used libraries. BUG: Now only one is allowed (more will make compile errors)
 ARDUINO_LIBS=NewSoftSerial
@@ -31,7 +31,7 @@ ARDUINO_PORT=/dev/ttyACM1
 #Flash Settings
 # What programmer to use:
 # - mega, uno = stk500v2
-AVRDUDE_ARD_PROGRAMMER = arduino
+AVRDUDE_ARD_PROGRAMMER = stk500v2
 
 # This can be a bitch.. newer devices have faster baudrate
 # DON'T SET ANY BITRATE FOR THE NEW MEGA'S OR UNO'S

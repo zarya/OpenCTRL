@@ -1,3 +1,7 @@
+Directory Layout:
+- src/*:        different implementations of the protocol for different platforms
+- bin/*:        the compiled C files
+
 Bus Configuration:
     - All devices have a 8bit dipswitch on which you'll be able to set the device ID (we still need a way to avoid collisions)
     - All devices have a 1bit dipswitch / jumper which will make the device act as Bus Master or Bus Slave (Client) (we still need a way to avoid collisions)

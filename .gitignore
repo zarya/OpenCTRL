@@ -1,5 +1,5 @@
-/Makefile
-/Makefile.uno
-/Makefile.mega
-/build-cli/
-/build
+/src/c/Makefile
+/src/c/Makefile.uno
+/src/c/Makefile.mega
+/src/c/bin/
+/src/c/build

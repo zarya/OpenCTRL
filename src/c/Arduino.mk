@@ -144,7 +144,9 @@ endif
 endif
 
 # Everything gets built in here
+ifndef OBJDIR
 OBJDIR  	  = build-cli
+endif
 
 ########################################################################
 # Local sources
@@ -160,7 +162,7 @@ LOCAL_OBJ_FILES = $(LOCAL_C_SRCS:.c=.o) $(LOCAL_CPP_SRCS:.cpp=.o) \
 LOCAL_OBJS      = $(patsubst %,$(OBJDIR)/%,$(LOCAL_OBJ_FILES))
 
 # Dependency files
-DEPS            = $(LOCAL_OBJS:.o=.d)
+DEPS	        = $(LOCAL_OBJS:.o=.d)
 
 # core sources
 ifeq ($(strip $(NO_CORE)),)
@@ -211,12 +213,12 @@ CAT     = cat
 ECHO    = echo
 
 CPPFLAGS      = -mmcu=$(MCU) -DF_CPU=$(F_CPU) \
-			-I. -I$(ARDUINO_CORE_PATH) \
+			-I./$(SRC)/ -I$(ARDUINO_CORE_PATH) \
 			$(SYS_INCLUDES) -g -Os -w -Wall \
 			-ffunction-sections -fdata-sections $(DEFINES)
 CFLAGS        = -std=gnu99
 CXXFLAGS      = -fno-exceptions
-ASFLAGS       = -mmcu=$(MCU) -I. -x assembler-with-cpp
+ASFLAGS       = -mmcu=$(MCU) -I./$(SRC)/ -x assembler-with-cpp
 LDFLAGS       = -mmcu=$(MCU) -lm -Wl,--gc-sections -Os
 
 # Rules for making a CPP file from the main sketch (.cpe)

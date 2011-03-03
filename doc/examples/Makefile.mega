@@ -1,6 +1,8 @@
 #Project Settings
 # Configuration Settings
 DEFINES = -DSER_DEVICE_TYPE=MASTER -DDEVICE_ID=222 -DSERIAL_DEBUG -DMAX_485PIN=2
+# available macro variables:
+# - BIG_ENDIAN
 
 #Generic settings!
 # The arduino directories
@@ -36,6 +38,8 @@ AVRDUDE_ARD_PROGRAMMER = stk500v2
 # - pro mini = 57600
 # more to follow
 #AVRDUDE_ARD_BAUDRATE   = 115200
+
+OBJDIR = bin
 
 # The actual make file
 include Arduino.mk

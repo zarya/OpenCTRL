@@ -13,7 +13,7 @@ ARDUINO_CORE_PATH = $(ARDUINO_DIR)/hardware/arduino/cores/arduino
 # The chip type:
 # atmega328p > Uno
 # atmega2560 > Mega
-# atmega168 > Pro
+# atmega168 / atmega328 > Pro
 MCU=atmega328p
 
 # Project name
@@ -38,6 +38,8 @@ AVRDUDE_ARD_PROGRAMMER = stk500v2
 # - pro mini = 57600
 # more to follow
 #AVRDUDE_ARD_BAUDRATE   = 115200
+
+OBJDIR = bin
 
 # The actual make file
 include Arduino.mk
