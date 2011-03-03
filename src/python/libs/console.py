@@ -83,14 +83,7 @@ class Console(cmd.Cmd):
             print e.__class__, ":", e
 
     def do_ping(self,dst):
+        """Send ping to slave ping <host>"""
         bus = Bus(self.ser)
         print "Sending ping to %s" % dst
         bus.send_ping(int(dst))
-
-    def do_debug(self, arg):
-        global debug
-        debug = True
-
-    def do_no_debug(self, arg):
-        global debug
-        debug = False

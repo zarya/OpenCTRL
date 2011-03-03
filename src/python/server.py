@@ -74,6 +74,8 @@ def receiving(ser):
             bus.send_welcome(packet)
             time.sleep(2)
             bus.send_ping(5)
+        if packet.type == 254:
+            print "Received PONG from: %s" % packet.src[1]
 
         #Feed application with the received data
     
