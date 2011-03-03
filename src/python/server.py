@@ -8,28 +8,30 @@ import socket
 import time
 import struct
 import sys
+
 import site
 site.addsitedir('libs')
 
 from threading import Thread
 from openctrl import Packet, checksum
 from openctrl_rs232 import Bus
-from console import Console
+from interface import Interface 
 
 class Receiver(Thread):
     daemon = True # Start background thread
     
-    def __init__(self, ser):
+    def __init__(self, ser, options):
         super(Receiver, self).__init__()
         self.ser = ser
+        self.options = options
     
     def run(self):
         self.running = True
-        global sending, debug 
         packet = Packet() #Start packet class
         bus = Bus(self.ser) #Start bus class
         while self.running:
-            if self.ser.inWaiting() == 0 and sending == True:
+            if self.ser.inWaiting() == 0:
+                time.sleep(0.1) 
                 continue
             #Receive data from application master
             buffert = 0
@@ -66,7 +68,7 @@ class Receiver(Thread):
                 packet = Packet()
                 continue
 
-            if debug:
+            if self.options.debug:
                 print "Checksum: input: %s %s Output: %s %s" % (packet.checksum[0],packet.checksum[1],packet.checksum_data[0],packet.checksum_data[1])
                 print "Packet data: %s" % ''.join(packet.data)
                 print "Packet len: %s" % packet.len
@@ -88,12 +90,13 @@ class Receiver(Thread):
                 time.sleep(2)
                 bus.send_ping(5)
             if packet.type == 254:
-                print "Received PONG from: %s" % packet.src[1]
+                print "\r\nReceived PONG from: %s" % packet.src[1]
 
             #Feed application with the received data
 
 def run():
     import optparse
+    from cli.console import Console
 
     parser = optparse.OptionParser()
     parser.add_option('-d', '--debug', action='store_true', default=False,
@@ -111,15 +114,19 @@ def run():
     
     options, args = parser.parse_args()
 
-    ser = serial.Serial(options.line, options.baud, timeout=options.timeout)
-    rcv = Receiver(ser).start()
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "console":
-            console = Console(ser)
+    ser = serial.Serial(options.line, options.baudrate, timeout=options.timeout)
+    rcv = Receiver(ser,options).start()
+    if args and args[0] == "console":
+        console = Console() 
+        interface = Interface(ser,console) 
+        try:
             try:
-                console.cmdloop()
+                interface.loop()
+                
             except KeyboardInterrupt:
                 rcv.running = False
+        finally:
+            console.restore()
 
 if __name__ ==  '__main__':
     sys.exit(run())
