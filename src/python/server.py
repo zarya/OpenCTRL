@@ -3,11 +3,13 @@ import socket
 import time
 import struct
 import sys
+import site
+site.addsitedir('libs')
 
 from threading import Thread
-from libs.openctrl import Packet, checksum
-from libs.openctrl_rs232 import Bus
-from libs.console import Console
+from openctrl import Packet, checksum
+from openctrl_rs232 import Bus
+from console import Console
 
 class Receiver(Thread):
     daemon = True # Start background thread
