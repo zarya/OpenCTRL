@@ -1,4 +1,9 @@
-import serial
+import sys
+try:
+    import serial
+except ImportError:
+    print >>sys.stderr, 'pyserial is required, http://pyserial.sourceforge.net/'
+    sys.exit(1)
 import socket
 import time
 import struct
@@ -86,11 +91,27 @@ class Receiver(Thread):
                 print "Received PONG from: %s" % packet.src[1]
 
             #Feed application with the received data
+
+def run():
+    import optparse
+
+    parser = optparse.OptionParser()
+    parser.add_option('-d', '--debug', action='store_true', default=False,
+        dest='debug',
+        help='show debugging output (default: no)')
+    parser.add_option('-l', '--line', default='/dev/ttyUSB1',
+        dest='line',
+        help='serial line device (default: /dev/ttyUSB1)')
+    parser.add_option('-b', '--baud', default=9600, type='int',
+        dest='baudrate',
+        help='serial baud rate (default: 9600 bps)')
+    parser.add_option('-t', '--timeout', default=1, type='int',
+        dest='timeout',
+        help='serial read timeout (default: 1 second)')
     
-if __name__ ==  '__main__':
-    debug = False
-    sending = False
-    ser = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
+    options, args = parser.parse_args()
+
+    ser = serial.Serial(options.line, options.baud, timeout=options.timeout)
     rcv = Receiver(ser).start()
     if len(sys.argv) > 1:
         if sys.argv[1] == "console":
@@ -99,4 +120,7 @@ if __name__ ==  '__main__':
                 console.cmdloop()
             except KeyboardInterrupt:
                 rcv.running = False
+
+if __name__ ==  '__main__':
+    sys.exit(run())
 
