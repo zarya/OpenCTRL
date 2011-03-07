@@ -63,7 +63,7 @@ class Receiver(Thread):
             #Check if the checksum is ok
             if packet.check_checksum() != 1: 
                 print "Packet Checksum: invalid"
-                #Stop processing packet en begin maar opnieuw
+                #Stop processing packet and restart 
                 packet = object
                 packet = Packet()
                 continue
