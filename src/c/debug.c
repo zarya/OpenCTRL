@@ -13,14 +13,6 @@
 
 static char writeBuffer[DBG_BUFFERSIZE]; // debug write buffer
 
-// initialize the 
-#ifdef __AVR__
-#if defined(__AVR_ATmega2560__)
-#define serBus Serial1
-#else
-NewSoftSerial serBus(3, 4);
-#endif
-
 void dbgInitialize()
 {
      debugInitialize();
@@ -73,6 +65,4 @@ void dbgPacket(SPacket *packet, uint16 _checksum)
 
 #else
 #error "No AVR Toolchain found"
-#endif
-
 #endif

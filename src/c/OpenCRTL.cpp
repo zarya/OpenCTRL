@@ -2,6 +2,7 @@
 #include <NewSoftSerial.h>
 
 #include "lib/protocol.h"
+#include "debug.h"
 #include "lib/debug.h"
 
 #include "OpenCRTL.h"
@@ -42,6 +43,15 @@ bool bWaitForResponse = false;
 uint8 nLastPacketID = 0; // remember to check if the master recved our 'interrupt / state change'
 
 int nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
+// initialize the 
+
+#ifdef __AVR__
+#if defined(__AVR_ATmega2560__)
+#define serBus Serial1
+#else
+NewSoftSerial serBus(3, 4);
+#endif
+#endif
 
 void setup(void)
 {
@@ -113,7 +123,7 @@ void readSerial()
 	  else if (ptrInputBuffer == ptrInputFinished) // we got the whole packet let's parse
 	  {
 	       dbgPrintln("Checksum should be: %d", getChecksum());
-	       dbgPacket(&sInput);
+	       dbgPacket(&sInput, nChecksum);
 
 	       if (!bInvalidPacket)
 	       {

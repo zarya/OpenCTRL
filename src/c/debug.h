@@ -29,7 +29,7 @@ extern "C"
 }
 #endif
 
-#else // ELSE !defined(SERIAL_DEBUG)
+#else // ! defined SERIAL_DEBUG
 
 // no debug defined, exclude all debug functions
 //#define dbgBaudrate(x)

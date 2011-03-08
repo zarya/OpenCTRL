@@ -7,5 +7,3 @@
 #endif
 
 #endif __DEBUG_USART_H__
-
-extern 
