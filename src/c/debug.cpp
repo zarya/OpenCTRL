@@ -13,18 +13,13 @@
 
 static char writeBuffer[DBG_BUFFERSIZE]; // debug write buffer
 
-void dbgInitialize()
-{
-     debugInitialize();
-}
-
 void dbgPrintln(char *str, ...)
 {
      va_list va;
      va_start(va, str);
      vsnprintf(writeBuffer, DBG_BUFFERSIZE, str, va);
-
-     debugPrintLine(writeBuffer);
+    
+     hwDbgPrintLine(writeBuffer);
 }
 
 void dbgPrint(char *str, ...)
@@ -32,12 +27,12 @@ void dbgPrint(char *str, ...)
      va_list va;
      va_start(va, str);
      vsnprintf(writeBuffer, DBG_BUFFERSIZE, str, va);
-     
-     debugPrint(writeBuffer);
+    
+     hwDbgPrint(writeBuffer);
 }
 
 // default is received packet: dbgPacket(&sInput) if you want to print output: dbgPacket(&sOutput, false)
-void dbgPacket(SPacket *packet, uint16 _checksum)
+void dbgPacket(SPacket *packet, uint16 _checksum, bool checksumValid)
 {
      dbgPrintln("%s (%d.%d) -> (%d.%d)", 
 		_checksum == 0 ? "INPUT" : "OUTPUT",
@@ -46,17 +41,17 @@ void dbgPacket(SPacket *packet, uint16 _checksum)
 		packet->header.m_nDestinationNetwork,
 		packet->header.m_nDestinationDevice );
      dbgPrintln("Packet ID: %d", packet->header.m_nPacketID);
-     dbgPrintln("Checksum: (%d) %s", (_checksum > 0 ? _checksum : nChecksum), (_checksum ? "" : (isChecksumValid() ? "valid" : "INVALID")));
-     
+     dbgPrintln("Checksum: (%d) %s", (_checksum > 0 ? _checksum : nChecksum), (_checksum ? "" : (checksumValid ? "valid" : "INVALID")));
+    
      if (packet->header.m_nPacketLength > SER_MAX_DATA_LENGTH)
 	  dbgPrintln("Protocol code: %d", packet->header.m_nPacketLength);
      else
 	  dbgPrintln("Data length: %d", packet->header.m_nPacketLength);
-
+    
      register char data = 0;
      for (; data < (packet->header.m_nPacketLength > SER_MAX_DATA_LENGTH ? 0 : packet->header.m_nPacketLength); data++)
 	  dbgPrint("%d ", packet->data[data]);
-
+    
      dbgPrintln("---------------------------------- \n");
 }
 

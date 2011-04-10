@@ -123,7 +123,7 @@ void readSerial()
 	  else if (ptrInputBuffer == ptrInputFinished) // we got the whole packet let's parse
 	  {
 	       dbgPrintln("Checksum should be: %d", getChecksum());
-	       dbgPacket(&sInput, nChecksum);
+	       dbgPacket(&sInput, nChecksum, isChecksumValid());
 
 	       if (!bInvalidPacket)
 	       {
@@ -249,7 +249,7 @@ int sendData(void )
 	  }
 #endif
 
-	  dbgPacket(&sOutput, *ptrChecksum);
+	  dbgPacket(&sOutput, *ptrChecksum, isChecksumValid());
 
 #ifdef MAX485_PIN
 	  delay(100);
