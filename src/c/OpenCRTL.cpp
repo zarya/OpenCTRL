@@ -144,7 +144,7 @@ void readSerial()
 			      }
 			 }
 			 else
-			   dbgPrintln("Checksum didn't match!");
+			      dbgPrintln("Checksum didn't match!");
 		    }
 		    else
 		    {
