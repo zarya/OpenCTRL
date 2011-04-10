@@ -1,14 +1,10 @@
 #ifndef __GENERIC_STDOUT_H__
+#define __GENERIC_STDOUT_H__
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-     extern void debugInitialize();
-     extern void debugPrintLine(char *_str);
-     extern void debugPrint(char *_str);
-#ifdef __cplusplus
-}
-#endif
+#define hwDbgInitialize() // not needed
+
+#define hwDbgPrintLine(str) printf("%s\n", str)
+
+#define hwDbgPrint(str) printf("%s", str)
 
 #endif //__GENERIC_STDOUT_H__
