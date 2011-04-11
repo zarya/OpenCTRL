@@ -1,14 +1,14 @@
 #ifndef __RS485_HW_H__
 #define __RS485_HW_H__
 
-#ifdef __AVR__
+#if defined(__AVR__)
 
 #include "WProgram.h"
-#include "HardwareSerial.h"
 #include <NewSoftSerial.h>
+#include "HardwareSerial.h"
 
-#ifdef __AVR__
-#ifdef __AVR_ATmega2560__
+#if defined(__AVR__)
+#if defined(__AVR_ATmega2560__)
 #define serBus Serial1
 #else
 NewSoftSerial serBus(3, 4);

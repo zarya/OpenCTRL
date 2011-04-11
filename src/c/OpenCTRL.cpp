@@ -1,3 +1,6 @@
+#include "WProgram.h"
+#include <NewSoftSerial.h>
+
 #include "lib/bytes.h"
 #include "lib/protocol.h"
 #include "lib/octrl_bus.h"

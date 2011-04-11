@@ -1,4 +1,4 @@
-//#include "WProgram.h"
+#include "WProgram.h"
 
 #include "debug.h"
 #include "OpenCTRL.h"

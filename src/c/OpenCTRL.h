@@ -26,10 +26,11 @@ extern "C"
 {
 #endif
      typedef struct _SDeviceContext {
-	  // generic bus status
+	  //TODO make it a status register with one bit for each boolean..
 	  bool m_bBusBusy;
 	  bool m_bOutputReady;
 	  bool m_bWaitForResponse;
+
 	  uint8 m_nBusID;
 	  uint8 m_nDeviceID;
 	  uint8 m_nMasterID;
