@@ -12,10 +12,10 @@
 
 // header
 typedef struct _SSerialHeader {
-     uint8 m_nSourceNetwork;
+     uint8 m_nSourceBusID;
      uint8 m_nSourceDeviceID;
-     uint8 m_nDestinationNetwork;  // is set by de master
-     uint8 m_nDestinationDevice;   // device ID word ingesteld 
+     uint8 m_nDestinationBusID;  // is set by de master
+     uint8 m_nDestinationDeviceID;   // device ID word ingesteld 
      uint8 m_nPacketID;
      // maximum size 32 bytes
      uint8 m_nPacketLength; // == maximum is 32
@@ -40,5 +40,8 @@ extern uint16 nChecksum;
 #define OCTRL_REPORT OCTRL_MSG_TYPE_START - 5 // Send by the master to an node to make it report it's status
 #define OCTRL_SILENC OCTRL_MSG_TYPE_START - 6 // Send by the master to claim the line and make all nods shut the fuck up (can be directed at one client or broadcasted)
 #define OCTRL_RESUME OCTRL_MSG_TYPE_START - 7 // Send by the master to make all nodes resume normal operation and notify that the can use the bus again (can be directed at one client or broadcasted)
+#define OCTRL_BYE OCTRL_MSG_TYPE_START - 8 // bye packet may be send by the client when it want to unregister itself by the master
+
+#define OCTRL_MSG_TYPE_END OCTRL_BYE // WARNING!! update when adding new message types
 
 #endif // __PROTOCOL_H__

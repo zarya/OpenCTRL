@@ -1,9 +1,8 @@
 #ifndef __USART_SERIAL_H__
 #define __USART_SERIAL_H__
 
-#if defined(__AVR__)
+#ifdef __AVR__
 
-#include "WProgram.h"
 #include "HardwareSerial.h"
 
 #define hwDbgInitialize() Serial.begin(DEBUG_BAUD_RATE)

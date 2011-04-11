@@ -36,10 +36,10 @@ void dbgPacket(SPacket *packet, uint16 _checksum, bool checksumValid)
 {
      dbgPrintln("%s (%d.%d) -> (%d.%d)", 
 		_checksum == 0 ? "INPUT" : "OUTPUT",
-		packet->header.m_nSourceNetwork,
+		packet->header.m_nSourceBusID,
 		packet->header.m_nSourceDeviceID,
-		packet->header.m_nDestinationNetwork,
-		packet->header.m_nDestinationDevice );
+		packet->header.m_nDestinationBusID,
+		packet->header.m_nDestinationDeviceID );
      dbgPrintln("Packet ID: %d", packet->header.m_nPacketID);
      dbgPrintln("Checksum: (%d) %s", (_checksum > 0 ? _checksum : nChecksum), (_checksum ? "" : (checksumValid ? "valid" : "INVALID")));
     

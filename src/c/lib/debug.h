@@ -1,4 +1,5 @@
 #ifndef __DEBUG_USART_H__
+#define __DEBUG_USART_H__
 
 #if defined(__AVR__)
 #include "lib/avr/usart_serial.h"
@@ -6,4 +7,4 @@
 #include "lib/generic/stdout.h"
 #endif
 
-#endif __DEBUG_USART_H__
+#endif // __DEBUG_USART_H__
