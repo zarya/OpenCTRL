@@ -25,4 +25,3 @@ void loop(void)                     // run over and over again
      delay(SERIAL_WAIT_TIME);
      octrlSendData();
 }
-

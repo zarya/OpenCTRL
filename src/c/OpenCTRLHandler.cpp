@@ -188,7 +188,22 @@ void octrlSendPing(SPacket *_sInput, SPacket *_sOutput, SDeviceContext *_sDevice
 
 void octrlSendAck(SPacket *_sInput, SPacket *_sOutput, SDeviceContext *_sDeviceContext)
 {
-     dbgPrintln("Need to send a ack packet but i'm lazy");
+     if (! _sDeviceContext->m_bOutputReady)
+     {
+	  dbgPrintln("Preparing ACK packet");
+
+	  // send PONG packet to bus
+	  _sOutput->header.m_nPacketLength = OCTRL_ACK;
+	  
+	  // set address and packet id
+	  octrlReplyToSender(_sInput, _sOutput);
+
+	  _sDeviceContext->m_bOutputReady = true;
+     }
+     else
+     {
+	  dbgPrintln("sendAck(): Output buffer already filled!");
+     }
 }
 
 void octrlSendReport(SPacket *_sInput, SPacket *_sOutput, SDeviceContext *_sDeviceContext)
@@ -199,6 +214,27 @@ void octrlSendReport(SPacket *_sInput, SPacket *_sOutput, SDeviceContext *_sDevi
 void octrlSendSilence(SPacket *_sInput, SPacket *_sOutput, SDeviceContext *_sDeviceContext)
 {
      dbgPrintln("Need to send an silence packet but i don't know how yet");
+     if (! _sDeviceContext->m_bOutputReady)
+     {
+	  if (isMaster())
+	  {
+	       dbgPrintln("Preparing SILENCE packet");
+	       
+	       // send SILENCE packet to bus
+	       _sOutput->header.m_nPacketLength = OCTRL_SILENCE;
+
+	       // set broadcast address
+	       octrlFullBroadcast(_sOutput);
+
+	       _sDeviceContext->m_bOutputReady = true;
+	  }
+	  else
+	       dbgPrintln("sendSilence(): Try to send SILENCE but device is not a bus master!");
+     }
+     else
+     {
+	  dbgPrintln("sendSilence(): Output buffer already filled!");
+     }
 }
 
 void octrlSendResume(SPacket *_sInput, SPacket *_sOutput, SDeviceContext *_sDeviceContext)
