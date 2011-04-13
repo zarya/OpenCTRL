@@ -25,6 +25,8 @@
 extern "C"
 {
 #endif
+     typedef void (*packetHandler)(SPacket *sPacket);
+
      typedef struct _SDeviceContext {
 	  //TODO make it a status register with one bit for each boolean..
 	  bool m_bBusBusy;
@@ -41,7 +43,7 @@ extern "C"
      extern void octrlInitInterface(void);
 
      // initialize the OpenCTRL bus
-     extern void octrlInitProtocol(uint8 _devId, bool _master);
+     extern void octrlInitProtocol(uint8 _devId, bool _master, packetHandler funPtr);
 
      // read data from the bus if any available
      extern void octrlReadData(void);
@@ -73,6 +75,8 @@ extern "C"
      extern uint8 octrlGetMasterID(void);
 
      extern bool octrlSetMasterID(uint8 _busId);
+
+     extern void registerPacketHandler(packetHandler *funPtr);
 #if __cplusplus
 }
 #endif

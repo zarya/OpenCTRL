@@ -38,7 +38,7 @@ extern uint16 nChecksum;
 #define OCTRL_WELCOME OCTRL_MSG_TYPE_START - 3 // welcome packet (send by master when received hello packet)
 #define OCTRL_ACK OCTRL_MSG_TYPE_START - 4 // ACK packet send in reply to notifie the the sender that the packet was received successfuly so it can be removed from the send buffer
 #define OCTRL_REPORT OCTRL_MSG_TYPE_START - 5 // Send by the master to an node to make it report it's status
-#define OCTRL_SILENC OCTRL_MSG_TYPE_START - 6 // Send by the master to claim the line and make all nods shut the fuck up (can be directed at one client or broadcasted)
+#define OCTRL_SILENCE OCTRL_MSG_TYPE_START - 6 // Send by the master to claim the line and make all nods shut the fuck up (can be directed at one client or broadcasted)
 #define OCTRL_RESUME OCTRL_MSG_TYPE_START - 7 // Send by the master to make all nodes resume normal operation and notify that the can use the bus again (can be directed at one client or broadcasted)
 #define OCTRL_BYE OCTRL_MSG_TYPE_START - 8 // bye packet may be send by the client when it want to unregister itself by the master
 

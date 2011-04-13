@@ -35,6 +35,8 @@ SPacket sOutput;
 
 int nTimeoutCounter = SERIAL_TIMEOUT_LIMIT;
 
+packetHandler octrlInputPacketHandler;
+
 void octrlInitInterface(void)
 {
      octrlBusInitialize(9600);
@@ -42,7 +44,7 @@ void octrlInitInterface(void)
      ptrChecksumStart = &sInput.data[SER_MAX_DATA_LENGTH - 1];
 }
 
-void octrlInitProtocol(uint8 _devId, bool _master)
+void octrlInitProtocol(uint8 _devId, bool _master, packetHandler funPtr)
 {
      octrlSetDeviceID(_devId);
      
@@ -60,7 +62,9 @@ void octrlInitProtocol(uint8 _devId, bool _master)
      if (_master) // TODO check master pin
 	  return; // scanNetwork()
      else
-	  octrlSendProtocolPacket(&sInput, &sOutput, &sDeviceContext, OCTRL_PING); // octrlSendProtoPacket()
+	  octrlSendProtocolPacket(&sInput, &sOutput, &sDeviceContext, OCTRL_HELLO); // octrlSendProtoPacket()
+
+     octrlInputPacketHandler = funPtr;
 }
 
 void octrlReadData(void)
@@ -107,6 +111,11 @@ void octrlReadData(void)
 			      {
 				   octrlHandleProtocolPacket(&sInput, &sOutput, &sDeviceContext);
 				   octrlRecFinished(); // data handled clear buffers
+			      }
+			      else
+			      {
+				   // protocol packet send to callback
+				   octrlInputPacketHandler(&sOutput);
 			      }
 			 }
 			 else

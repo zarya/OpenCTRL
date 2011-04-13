@@ -3,14 +3,16 @@
 #include "debug.h"
 #include "OpenCTRL.h"
 
+void inputHandler(SPacket *sPacket);
+
 void setup(void)
 {
      dbgInitialize();
      dbgPrintln("Loading OpenCTRL...");
 
      octrlInitInterface();
-     octrlInitProtocol(DEVICE_ID, isMaster());
-     dbgPrintln("Running as (%s) with Device ID (%d) and Network ID (%d)", isMaster() ? "MASTER" : "SLAVE", octrlGetDeviceID(), octrlGetBusID());
+     octrlInitProtocol(DEVICE_ID, isMaster(), inputHandler);
+    dbgPrintln("Running as (%s) with Device ID (%d) and Network ID (%d)", isMaster() ? "MASTER" : "SLAVE", octrlGetDeviceID(), octrlGetBusID());
 
      // only for startup use delay and start to make sure the bus is empty before trying to send
      delay(500);
@@ -24,4 +26,9 @@ void loop(void)                     // run over and over again
      octrlReadData();
      delay(SERIAL_WAIT_TIME);
      octrlSendData();
+}
+
+void inputHandler(SPacket *sPacket)
+{
+     // got new no protocol packet
 }
