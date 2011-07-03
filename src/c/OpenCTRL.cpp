@@ -25,6 +25,7 @@ SDeviceContext sDeviceContext = {
 SPacket sInput;
 uint8 *ptrInputBuffer = NULL;
 uint8 *ptrInputFinished = NULL;
+uint8 *ptrInputEOB = NULL;
 uint8 *ptrChecksumStart = NULL;
 uint16 nChecksum = 0;
 uint8 nLastChar = 0;
@@ -52,6 +53,8 @@ void octrlInitProtocol(uint8 _devId, bool _master, packetHandler funPtr)
 	  octrlSetBusID(_devId);
      else
 	  octrlSetBusID(0);
+
+     ptrInputEOB = &sInput.data[SER_MAX_DATA_LENGTH];
 
 // TODO only when device is not set master!!! If is set master start initial ping to all nods... 
 // BUG How does the device know when it's newly added to the BUS or it sufferd from power loss, not all MCU's have Brown Out Register
@@ -135,7 +138,7 @@ void octrlReadData(void)
 		    dbgPrintln("Invalid packet! To bad!");
 	       }
 	  }
-	  else if (ptrInputBuffer == &sInput.data[SER_MAX_DATA_LENGTH])
+	  else if (ptrInputBuffer == ptrInputEOB)
 	  {
 	       // packet longer then RFC mark invalid and reset pointer to prefent buffer overflow ;)
 	       ptrInputBuffer = &sInput.data[0]; // overwrite previous data invalid anywayzz

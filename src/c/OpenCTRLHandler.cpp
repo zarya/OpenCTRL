@@ -183,6 +183,20 @@ void octrlRecvBye(SPacket *_sInput, SPacket *_sOutput, SDeviceContext *_sDeviceC
 
 void octrlSendPing(SPacket *_sInput, SPacket *_sOutput, SDeviceContext *_sDeviceContext)
 {
+     if (! _sDeviceContext->m_bOutputReady)
+     {
+	  dbgPrintln("Preparing PING packet");
+	  
+	  _sOutput->header.m_nPacketLength = OCTRL_PING;
+	  
+	  // todo add address code here...
+
+	  _sDeviceContext->m_bOutputReady = true;
+     }
+     else
+     {
+	  dbgPrintln("sendPing(): output buffer already filled!");
+     }
      dbgPrintln("Need to send a ping packet... but i'm lazy");
 }
 

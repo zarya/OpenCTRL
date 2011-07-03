@@ -72,10 +72,13 @@ extern "C"
      // inline function to set the bus id (returns false if the device is already initialized)
      extern bool octrlSetBusID(uint8 _busId);
 
+     // get the master id
      extern uint8 octrlGetMasterID(void);
 
+     // set the master id
      extern bool octrlSetMasterID(uint8 _busId);
 
+     // let you register a packet handler which will be used callbackfunction
      extern void registerPacketHandler(packetHandler *funPtr);
 #if __cplusplus
 }
