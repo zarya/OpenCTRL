@@ -212,10 +212,12 @@ MV      = mv -f
 CAT     = cat
 ECHO    = echo
 
+ifndef CPPFLAGS
 CPPFLAGS      = -mmcu=$(MCU) -DF_CPU=$(F_CPU) \
 			-I./$(SRC)/ -I$(ARDUINO_CORE_PATH) \
 			$(SYS_INCLUDES) -g -Os -w -Wall \
 			-ffunction-sections -fdata-sections $(DEFINES)
+endif
 CFLAGS        = -std=gnu99
 CXXFLAGS      = -fno-exceptions
 ASFLAGS       = -mmcu=$(MCU) -I./$(SRC)/ -x assembler-with-cpp
