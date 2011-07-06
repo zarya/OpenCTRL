@@ -19,7 +19,7 @@
 #define isDevice() (SER_DEVICE_TYPE == SLAVE)
 
 #define SERIAL_TIMEOUT_LIMIT 1000 // 1000 loop cycles is timeout
-#define SERIAL_WAIT_TIME 20000
+#define SERIAL_WAIT_TIME 200
 
 #if __cplusplus
 extern "C"

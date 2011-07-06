@@ -381,7 +381,7 @@ $(DEP_FILE):	$(OBJDIR) $(DEPS)
 
 upload:		reset raw_upload
 
-raw_upload:	$(TARGET_HEX)
+raw_upload:	$(TARGET_HEX) kill
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ARD_OPTS) \
 			-U flash:w:$(TARGET_HEX):i
 
@@ -396,7 +396,7 @@ reset:
 		(sleep 0.1 2>/dev/null || sleep 1) ; \
 		$$STTYF $(ARD_PORT) -hupcl 
 
-ispload:	$(TARGET_HEX)
+ispload:	$(TARGET_HEX) kill
 		$(AVRDUDE) $(AVRDUDE_COM_OPTS) $(AVRDUDE_ISP_OPTS) -e \
 			-U lock:w:$(ISP_LOCK_FUSE_PRE):m \
 			-U hfuse:w:$(ISP_HIGH_FUSE):m \
@@ -413,6 +413,9 @@ clean:
 
 depends:	$(DEPS)
 		cat $(DEPS) > $(DEP_FILE)
+
+kill:
+		-killall cu
 
 .PHONY:	all clean depends upload raw_upload reset
 
